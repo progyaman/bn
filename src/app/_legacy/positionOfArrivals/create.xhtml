@@ -1,0 +1,128 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">موقف الوافدين</ui:define>
+
+
+    <ui:define name="content">
+
+        <div class="p-grid" style="overflow: hidden">
+
+            <div class="p-col">
+
+                <p:growl id="growl" showDetail="true"/>
+                <h:form id="form"
+                        rendered="#{request.isUserInRole('PositionOfArrivals Create') or request.isUserInRole('PositionOfArrivals Update')}">
+                    <p:growl id="messages" showDetail="true"/>
+                    <h:panelGroup>
+                        <div class="card ui-fluid">
+                            <p:fieldset legend="موقف الوافدين " style="font-size: large">
+                                <div class="ui-fluid p-formgrid p-grid p-py-4">
+                                    <div class="p-field p-col-12 p-md-3">
+                                        <p:outputLabel styleClass="p-text-bold" value=" التاريخ " for="dateOfPositionOfArrivals" />
+                                        <p:calendar  value="#{positionOfArrivalsController.selected.date}" id="dateOfPositionOfArrivals"
+                                                     required="true" showButtonBar="true"
+                                                     requiredMessage="  يرجى تعبئة الحقل "
+                                        />
+
+                                    </div>
+
+
+
+                                    <div class="p-field p-col-12 p-md-3">
+
+                                        <p:outputLabel styleClass="p-text-bold" value="عدد الوافدين" for="numberOfArrivals"/>
+                                        <p:inputNumber id="numberOfArrivals"
+                                                       styleClass="form-control"
+                                                       value="#{positionOfArrivalsController.selected.numberOfArrivals}"
+                                                       required="#{empty positionOfArrivalsController.selected.numberOfDepartures}"
+                                                       requiredMessage="  يرجى تعبئة الحقل "
+                                                       minValue="0"
+                                                       decimalPlaces="0"
+                                        >
+                                            <p:ajax update="numberOfDepartures" process="@this"/>
+                                        </p:inputNumber>
+
+                                    </div>
+
+                                    <div class="p-field p-col-12 p-md-3">
+
+                                        <p:outputLabel styleClass="p-text-bold" value="عدد المغادرين" for="numberOfDepartures"/>
+                                        <p:inputNumber id="numberOfDepartures"
+                                                       styleClass="form-control" decimalPlaces="0"
+                                                       value="#{positionOfArrivalsController.selected.numberOfDepartures}"
+                                                        required="#{ empty positionOfArrivalsController.selected.numberOfArrivals}"
+                                                       requiredMessage="  يرجى تعبئة الحقل "
+                                                       minValue="0"
+                                        >
+                                            <p:ajax update="numberOfArrivals" process="@this"/>
+
+                                        </p:inputNumber>
+
+                                    </div>
+
+
+
+                                </div>
+                                <div class="ui-fluid p-formgrid p-grid p-py-4">
+                                <div class="p-field p-col-12 p-md-3">
+                                    <p:outputLabel styleClass="p-text-bold" value="الجنسية" for="nationality"/>
+                                    <p:selectOneMenu id="nationality" dir="rtl" value="#{positionOfArrivalsController.selected.nationality}" required="true"
+                                                     requiredMessage="  يرجى تعبئة الحقل "
+                                    >
+                                        <f:selectItem itemLabel="يرجى الأختيار" itemValue=""
+                                                      noSelectionOption="true"/>
+                                        <f:selectItem itemLabel="عراقي" itemValue="عراقي"/>
+                                        <f:selectItem itemLabel="ايراني" itemValue="ايراني"/>
+                                        <f:selectItem itemLabel="جنسيات اخرى" itemValue="جنسيات اخرى"/>
+                                    </p:selectOneMenu>
+                                </div>
+
+                                    <div class="p-field p-col-12 p-md-3">
+                                        <p:outputLabel styleClass="p-text-bold" value="المنفذ الحدودي/المطار" for="borderCrossingPoint"/>
+                                        <p:selectOneMenu id="borderCrossingPoint" dir="rtl" value="#{positionOfArrivalsController.selected.borderCrossingPoint}">
+                                            <f:selectItem itemLabel="يرجى الأختيار" itemValue=""
+                                                          noSelectionOption="true"/>
+                                            <f:selectItems value="#{positionOfArrivalsController.borderCrossingPointName}" var="name" itemLabel="#{name}" itemValue="#{name}"/>
+
+                                        </p:selectOneMenu>
+                                    </div>
+                                </div>
+                            </p:fieldset>
+                            <div class="ui-fluid p-formgrid p-grid p-py-4">
+                                <div class="p-field p-col-12 p-md-2">
+
+
+                                    <p:commandButton action="#{positionOfArrivalsController.doCreate()}"
+                                                     style="font-size: large"
+                                                     icon="pi pi-save"
+                                                     update=":growl form "
+                                                     value="حــفـظ"/>
+                                </div>
+                                <div class="p-field p-col-12 p-md-4">
+                                    <p:linkButton
+                                            style="font-size: large; width: 200px"
+                                            icon="pi pi-arrow-circle-up" styleClass="ui-button-danger"
+                                            outcome="list"
+                                            value="رجوع">
+                                    </p:linkButton>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </h:panelGroup>
+
+                </h:form>
+
+            </div>
+
+        </div>
+    </ui:define>
+
+</ui:composition>
+

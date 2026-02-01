@@ -1,0 +1,105 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">الخارطة</ui:define>
+
+    <ui:define name="head">
+
+        <h:outputScript name="leaflet.js" library="js"/>
+        <h:outputStylesheet name="leaflet.css" library="css"/>
+
+        <h:outputScript name="proj4.js" library="js" charset="UTF-8"/>
+        <h:outputScript name="mgrs.min.js" library="js" charset="UTF-8"/>
+        <h:outputScript name="MarkerClusterGroup.js" library="js" charset="UTF-8"/>
+        <h:outputScript name="MarkerCluster.js" library="js" charset="UTF-8"/>
+
+        <h:outputScript name="MarkerOpacity.js" library="js" charset="UTF-8"/>
+        <h:outputScript name="DistanceGrid.js" library="js" charset="UTF-8"/>
+        <h:outputScript name="MarkerCluster.QuickHull.js" library="js" charset="UTF-8"/>
+        <h:outputScript name="MarkerCluster.Spiderfier.js" library="js" charset="UTF-8"/>
+        <h:outputScript name="MarkerClusterGroup.Refresh.js" library="js" charset="UTF-8"/>
+        <h:outputStylesheet name="MarkerCluster.Default.css" library="css"/>
+
+        <h:outputScript name="Control.FullScreen.js" library="js" charset="UTF-8"/>
+        <h:outputStylesheet name="Control.FullScreen.css" library="css"/>
+
+        <h:outputScript name="AliCoordinateView.js" library="js" charset="UTF-8"/>
+        <h:outputStylesheet name="AliCoordinateView.css" library="css"/>
+
+        <h:outputScript name="AliMarkersFiltering.js" library="js" charset="UTF-8"/>
+        <h:outputStylesheet name="AliMarkersFiltering.css" library="css"/>
+
+        <h:outputScript name="AliSideBar.js" library="js" charset="UTF-8"/>
+        <h:outputStylesheet name="AliSideBar.css" library="css"/>
+
+        <h:outputScript name="leaflet-measure-path.js" library="js" charset="UTF-8"/>
+        <h:outputStylesheet name="leaflet-measure-path.css" library="css"/>
+
+        <h:outputScript name="leaflet-geoman.js" library="js" charset="UTF-8"/>
+        <h:outputStylesheet name="leaflet-geoman.css" library="css"/>
+
+        <h:outputScript name="leaflet-search.src.js" library="js" charset="UTF-8"/>
+        <h:outputStylesheet name="leaflet-search.src.css" library="css"/>
+
+        <h:outputScript name="Leaflet.LinearMeasurement.js" library="js" charset="UTF-8"/>
+        <h:outputStylesheet name="Leaflet.LinearMeasurement.css" library="css"/>
+
+        <h:outputScript name="select2.min.js" library="js" charset="UTF-8"/>
+        <h:outputStylesheet name="select2.min.css" library="css"/>
+
+        <h:outputScript name="leaflet.browser.print.js" library="js" charset="UTF-8"/>
+
+        <h:outputScript name="flatpickr.js" library="js" charset="UTF-8"/>
+        <h:outputScript name="flatpicker-locale-ar.js" library="js" charset="UTF-8"/>
+        <h:outputStylesheet name="flatpickr.min.css" library="css"/>
+
+        <h:outputScript name="js/chart.js" library="demo"/>
+        <h:outputScript name="chartjs-plugin-labels.js" library="js"/>
+
+        <h:outputScript name="L.switchBasemap.js" library="js" charset="UTF-8"/>
+        <h:outputStylesheet name="L.switchBasemap.css" library="css"/>
+
+        <h:outputScript name="autocomplete.min.js" library="js" charset="UTF-8"/>
+        <h:outputStylesheet name="autocomplete.min.css" library="css"/>
+
+        <h:outputScript name="AliSearchBox.js" library="js" charset="UTF-8"/>
+        <h:outputStylesheet name="AliSearchBox.css" library="css"/>
+
+        <script type="text/javascript">
+            Chart.defaults.global.plugins.labels = {
+                render : 'value',
+                fontSize: 12,
+                fontStyle: 'bold',
+                fontColor: '#F9C74F'
+            }
+            Chart.defaults.global.defaultFontFamily = 'Droid Arabic Kufi'
+            Chart.defaults.global.defaultFontColor = 'white'
+            Chart.defaults.global.defaultFontStyle = 'bold'
+        </script>
+
+        <h:outputScript>
+            document.addEventListener("DOMContentLoaded", function () {
+            // ... legacy map script (see original attachment)
+            });
+        </h:outputScript>
+
+    </ui:define>
+
+    <ui:define name="content">
+        <p:outputLabel style="font-weight: bold; margin-right: 50%"
+                       rendered="#{!request.isUserInRole('MapStudio View')}">لا تمتلك صلاحية عرض هذه الصفحة</p:outputLabel>
+        <h:form id="newsForm" rendered="#{request.isUserInRole('MapStudio View')}">
+            <!-- legacy map content -->
+        </h:form>
+
+    </ui:define>
+
+    <f:metadata>
+        <f:viewParam name="hideFooter" value="true"/>
+    </f:metadata>
+
+</ui:composition>

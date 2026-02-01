@@ -1,0 +1,102 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">التقرير</ui:define>
+
+    <ui:define name="viewname">
+<!--        <li><p:link outcome="/dashboard">الصفحة الرئيسية</p:link></li>-->
+        <li><i class="pi pi-chevron-right"/></li>
+        <li>
+            <p:link outcome="/admin/report/create">التقرير</p:link>
+        </li>
+    </ui:define>
+
+    <ui:define name="content">
+
+        <div class="p-grid">
+
+            <div class="p-col">
+
+                <p:growl id="growl" showDetail="true"/>
+                <h:form enctype="multipart/form-data" id="form" rendered="#{request.isUserInRole('Report Create') or request.isUserInRole('Report Update')}">
+                    <p:growl id="messages" showDetail="true"/>
+                    <h:panelGroup>
+                    <div class="card ui-fluid">
+                        <p:fieldset legend="التقرير" style="font-size: large">
+                            <div class="ui-fluid p-formgrid p-grid p-py-4">
+                                <div class="p-field p-col-12 p-md-6">
+                                    <p:outputLabel styleClass="p-text-bold" value="من " for="report-f"/>
+                                    <p:inputText required="true" maxlength="250" id="report-f"
+                                                 requiredMessage="يرجى ملئ الحقل ( من )"
+                                                 value="#{reportController.selected.fromThem}"/>
+
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <p:outputLabel styleClass="p-text-bold" value="ألى " for="report-t"/>
+                                    <p:inputText required="true" maxlength="250" id="report-t"
+                                                 requiredMessage="يرجى ملئ الحقل (ألى)"
+                                                 value="#{reportController.selected.toThem}"/>
+
+                                </div>
+                                <div class="p-field p-col-12 p-md-12">
+                                    <p:outputLabel styleClass="p-text-bold" value="الموضوع" for="theTopic"/>
+                                    <p:inputTextarea required="true" maxlength="250" id="theTopic"
+                                                     requiredMessage="يرجى ملئ حقل الموضوع"
+                                                     value="#{reportController.selected.theTopic}"/>
+
+                                </div>
+                                <div class="p-field p-col-12 p-md-12">
+                                    <p:outputLabel styleClass="p-text-bold" value="التفاصيل" for="details"/>
+                                    <p:inputTextarea required="true" maxlength="250" id="details"
+                                                     requiredMessage="يرجى ملئ حقل التفاصيل"
+                                                     value="#{reportController.selected.details}"/>
+
+                                </div>
+
+                                <div class="p-field p-col-12 p-md-6">
+                                    <p:outputLabel styleClass="p-text-bold" value="تاريخ التقرير " for="date"/>
+                                    <p:datePicker maxlength="250" monthNavigator="true" yearNavigator="true"
+                                                  showButtonBar="true" required="true"
+                                                  requiredMessage="يرجى ملئ حقل ألتاريخ"
+                                                  id="date"
+                                                  value="#{reportController.selected.date}"/>
+                                </div>
+                                <div class="p-field p-col-12 p-md-6">
+                                    <p:outputLabel styleClass="p-text-bold" value="نوع التقرير " for="reportType"/>
+                                    <p:selectOneMenu id="reportType" dir="rtl" value="#{reportController.selected.reportType}"
+                                                     required="true" requiredMessage="يرجى ملئ حقل نوع التقرير">
+                                        <f:selectItem itemLabel="يرجى الأختيار" itemValue=""
+                                                      noSelectionOption="true"/>
+                                        <f:selectItems value="#{reportController.reportTypeEnum()}" var="r"
+                                                       itemLabel="#{r.reportType}"
+                                                       itemValue="#{r.reportType}"/>
+                                    </p:selectOneMenu>
+                                </div>
+                            </div>
+
+                        </p:fieldset>
+                        <div class=" p-col-12 p-md-2">
+
+
+                            <p:commandButton action="#{reportController.doCreate()}"
+                                             style="font-size: large"
+                                             icon="pi pi-save"
+                                             update=":growl form "
+                                             value="حــفـظ"/>
+                        </div>
+
+                    </div>
+                    </h:panelGroup>
+                </h:form>
+
+            </div>
+
+        </div>
+    </ui:define>
+
+</ui:composition>
+

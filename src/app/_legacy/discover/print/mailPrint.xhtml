@@ -1,0 +1,42 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/admin/discover/print/template.xhtml">
+   <ui:define name="title">البيان - طباعة بريد</ui:define>
+
+   <ui:define name="content">
+      <div style="font-family: 'Times New Roman' !important; direction: rtl; position: relative; width: 100%; height: 100%">
+         <img style="height: 100vh; width: 100%;" src="#{resource['images:doc-form.png']}"/>
+         <p style="position: absolute; top: 50px; left: 195px; font-size: 28px !important; font-weight: bold; color: #716849;">
+            #{mailController.selected.id}
+         </p>
+         <p style="position: absolute; top: 115px; left: 135px; font-size: 28px !important; font-weight: bold; color: #716849;">
+            #{mailController.selected.createDate.toLocalDate()}
+         </p>
+         <p style="text-align: center; width: 100%; position: absolute; top: 255px; font-size: 32px !important; font-weight: bold; color: #716849;">
+            السلام عليك يا صاحب الزمان
+         </p>
+         <p style="text-align: center; width: 100%; position: absolute; top: 295px; font-size: 32px !important; font-weight: bold; color: #716849;">
+            الى/
+            #{mailController.MuNameByPositionId(mailController.selected.mainMail.transferForId)}
+         </p>
+         <p style="text-align: center; width: 100%; position: absolute; top: 340px; font-size: 32px !important; font-weight: bold; color: #716849;">
+            من/
+            #{mailController.selected.mainMail.subject}
+         </p>
+         <p style="margin: 4.5rem ; text-align: right; width: 90%; position: absolute; top: 365px; font-size: 30px !important; font-weight: bold; color: #716849;">
+            #{mailController.selected.mainMail.body}
+         </p>
+         <p style="margin: 4.5rem ; text-align: left; width: 90%; position: absolute; bottom: 60px; font-size: 30px !important; font-weight: bold; color: #716849;">
+            <p:graphicImage value="#{mailController.SignatureByPositionId(mailController.selected.mainMail.positionId).data}"
+                            stream="false" style="max-height: 320px; max-width: 320px" />
+            <br/>
+            #{mailController.PositionNameByPositionId(mailController.selected.mainMail.positionId)}
+            <br/>
+            #{mailController.selected.createDate.toLocalDate()}
+         </p>
+      </div>
+   </ui:define>
+</ui:composition>

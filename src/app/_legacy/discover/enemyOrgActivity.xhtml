@@ -1,0 +1,302 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">كشف #{msg.tOrg} للمحافظات</ui:define>
+
+
+    <ui:define name="content">
+        <h:form id="form" rendered="#{request.isUserInRole('Kshofat View')}">
+            <p:growl id="growl" showDetail="true"/>
+            <p:outputPanel id="manage-product-content" style="overflow-scrolling: auto" class="ui-fluid">
+                <p:fieldset legend=" كشف #{msg.tOrg} للمحافظات">
+
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-4 ">
+                            <p:outputLabel styleClass="p-text-bold" value="تحديد بين تاريخين" for="dates"/>
+                            <p:datePicker selectionMode="range"
+                                          id="dates"
+                                          monthNavigator="true" yearNavigator="true"
+                                          value="#{enemyActivityController.dateRange}"
+                                          touchUI="true" showOnFocus="true" showButtonBar="true"
+                                          showOtherMonths="true"
+                                          required="true"
+                                          requiredMessage=" بحث بين تاريخين"
+                                          onchange="PF('form').filter()"
+                                          placeholder="بحث بين تاريخين"/>
+                        </div>
+
+
+                        <div class="p-field p-col-4">
+                            <p:outputLabel styleClass="p-text-bold" value="المهمة"
+                            />
+                            <p:selectOneMenu label="  المهمة" filter="true"
+                                             filterMatchMode="contains"
+                                             filterPlaceholder="البحث"
+                                             autoWidth="true"
+                                             dir="rtl"
+                                             value="#{enemyActivityController.missionId}"
+                                             converter="omnifaces.SelectItemsIndexConverter">
+                                <f:selectItem itemLabel="يرجى الاختيار" noSelectionOption="true"/>
+                                <f:selectItems value="#{enemyActivityController.missionNames}"
+                                               var="missionName" itemLabel="#{missionName.name}"
+                                               itemValue="#{missionName.id}"/>
+
+                                <p:ajax event="change"
+                                        process="@this"/>
+
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="p-field p-col-4">
+                            <p:outputLabel styleClass="p-text-bold" value="نوع الحدث "
+                                           for="activityType"/>
+                            <p:selectCheckboxMenu id="activityType" label="يرجى الاختيار" filter="true"
+                                                  filterPlaceholder="البحث"
+                                                  filterMatchMode="contains"
+                                                  requiredMessage="يرجى ملئ حقل  نوع الحدث"
+                                                  value="#{enemyActivityController.activiyTypeIDs}"
+                                                  dir="rtl"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  valueChangeListener="#{enemyActivityController.getOrgNameByActivityType}"
+
+                                                  converter="omnifaces.SelectItemsConverter">
+                                <f:selectItems value="#{enemyActivityController.activityTypeList}"
+                                               var="activityType" itemLabel="#{activityType.name}"
+                                               itemValue="#{activityType.id}"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="org selectSecTypes selectSecTypesLabel"/>
+                                <p:ajax event="change" update="org selectSecTypes selectSecTypesLabel"
+                                        process="@this"/>
+
+                            </p:selectCheckboxMenu>
+
+                        </div>
+                        <div class="p-field p-col-4">
+                            <p:outputLabel styleClass="p-text-bold" value="#{msg.orgs}" for="org"/>
+
+                            <p:selectCheckboxMenu id="org" label="يرجى الاختيار" filter="true"
+                                                  filterMatchMode="contains"
+                                                  filterPlaceholder="البحث" required="true"
+                                                  requiredMessage="يرجى اختيار #{msg.org}"
+                                                  valueChangeListener="#{enemyActivityController.getTypeOrgNameByActivityTypeAndOrgName}"
+                                                  value="#{enemyActivityController.organizationIDs}"
+                                                  multiple="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  dir="rtl"
+
+                                                  converter="omnifaces.SelectItemsConverter">
+
+                                <f:selectItems value="#{enemyActivityController.organizationList}"
+                                               var="org1" itemLabel="#{org1.orgName.name}"
+                                               itemValue="#{org1.orgName.id}"/>
+                                <p:ajax event="change" process="@this" update="typeOrgName"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="typeOrgName"/>
+                                <p:ajax event="itemUnselect" process="@this" update="typeOrgName"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-4">
+                            <p:outputLabel styleClass="p-text-bold" value="#{msg.tOrg} "
+                                           for="typeOrgName"/>
+                            <p:selectCheckboxMenu id="typeOrgName" required="true" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  updateLabel="true"
+                                                  showCheckbox="true"
+                                                  value="#{enemyActivityController.orgActivityTypeStrings}"
+                                                  requiredMessage="يرجى اختيار #{msg.tOrg} #{msg.org}"
+                                                  converter="omnifaces.SelectItemsConverter">
+
+                                <f:selectItems var="typeOrg"
+                                               value="#{enemyActivityController.orgActivityTypeSelected}"
+                                               itemLabel="#{typeOrg.name}"
+                                               itemValue="#{typeOrg.name}"/>
+                                <p:ajax event="change"
+                                        process="@this" />
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-4">
+                            <p:outputLabel id ="selectSecTypesLabel" for="selectSecTypes" styleClass="p-text-bold" value="#{msg.hsdAndForce}"/>
+                            <p:selectCheckboxMenu id="selectSecTypes" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="#{enemyActivityController.requiredInput}"
+                                                  requiredMessage=" يرجى اختيار #{msg.hsdAndForce} "
+                                                  disabled="#{enemyActivityController.disableInput}"
+                                                  value="#{enemyActivityController.otherSideId }"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="otherHands"
+                                               value="#{enemyActivityController.otherHands}"
+                                               itemLabel="#{otherHands.name}"
+                                               itemValue="#{otherHands.id}"/>
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                    </div>
+
+
+                    <div class="ui-fluid p-formgrid p-grid">
+
+<!--                        <div class="p-field p-col-4 ">-->
+<!--                            <p:outputLabel for="citiesID" styleClass="p-text-bold" value="التبعية المنجزة"/>-->
+<!--                            <p:selectCheckboxMenu id="monjaz" dir="rtl"-->
+<!--                                                  filter="true"-->
+<!--                                                  filterPlaceholder="البحث" filterMatchMode="contains"-->
+<!--                                                  multiple="true"-->
+<!--                                                  dynamic="true"-->
+<!--                                                  style="overflow-y: scroll; max-height: 8rem;"-->
+<!--                                                  required="true"-->
+<!--                                                  requiredMessage=" يرجى اختيار التبعية المنجزة"-->
+<!--                                                  value="#{enemyActivityController.monjaz }">-->
+
+<!--                                <f:selectItem itemLabel="#{msg.hashd}" itemValue="#{msg.hashd}"/>-->
+<!--                                <f:selectItem itemLabel="القوات الأمنية" itemValue="القوات الأمنية"/>-->
+<!--                                <f:selectItem itemLabel="مشترك" itemValue="مشترك"/>-->
+<!--                                <f:selectItem itemLabel="المدنيين" itemValue="المدنيين"/>-->
+<!--                                <f:selectItem itemLabel="البنى التحتية" itemValue="البنى التحتية"/>-->
+
+<!--                                <p:ajax event="change"-->
+<!--                                        process="@this"/>-->
+<!--                            </p:selectCheckboxMenu>-->
+<!--                        </div>-->
+                        <div class="p-field p-col-4 ">
+                            <p:outputLabel for="citiesID" styleClass="p-text-bold" value="المحافظات"/>
+                            <p:selectCheckboxMenu id="citiesID" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار المحافظات"
+                                                  value="#{enemyActivityController.cityIdList }"
+                                                  valueChangeListener="#{enemyActivityController.findDistrictByCity}"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="city"
+                                               value="#{enemyActivityController.cities}"
+                                               itemLabel="#{city.name}"
+                                               itemValue="#{city.id}"/>
+                                <p:ajax event="change"
+                                        process="@this" update="district"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="district"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-4 ">
+                            <p:outputLabel for="district" styleClass="p-text-bold" value="القضاء"/>
+                            <p:selectCheckboxMenu id="district" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار الأقضية"
+                                                  value="#{enemyActivityController.districtIdList }"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="district"
+                                               value="#{enemyActivityController.districts}"
+                                               itemLabel="#{district.name}"
+                                               itemValue="#{district.id}"/>
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+
+
+
+
+                        <div class="p-field p-col-5 ">
+                            <p:outputLabel for="reportName" styleClass="p-text-bold" value="عنوان الكشف"/>
+                            <p:inputText value="#{enemyActivityController.reportName}"
+                                         id="reportName"
+                                         required="true" requiredMessage="يرجى إدخال عنوان الكشف"/>
+                        </div>
+
+                        <div class="p-col-4 p-jc-center p-ac-center ">
+                            <p:commandButton id="filterBtn" value="بحث" icon="pi pi-check"
+                                             styleClass="p-mt-5 ui-button-success"
+                                             actionListener="#{enemyActivityController.onFilter}"
+                                             style="width: 90px;"
+                                             update="form"
+                                             process="@form,dates"
+                            />
+                            <p:commandButton value="اعادة ضبط الكشف" icon="pi pi-refresh" styleClass="p-mt-5"
+                                             actionListener="#{enemyActivityController.init}"
+                                             style="width: 160px; margin-right: 1rem"
+                                             update="form"
+                            />
+                            <p:commandButton rendered="#{enemyActivityController.cityList.size() != 0}"
+                                             value="طباعة" icon="pi pi-print"
+                                             action="#{enemyActivityController.incrementCounter()}"
+                                             process="@this"
+                                             style="width: 120px ; margin-right: 1rem"
+                                             onclick="printDoc('enemyOrgActivityPrint')"/>
+                        </div>
+                    </div>
+                </p:fieldset>
+                <p:blockUI block="form" trigger="filterBtn">
+                    <i class="pi pi-spin pi-spinner" style="font-size: 6rem"></i>
+                </p:blockUI>
+            </p:outputPanel>
+
+
+            <!--======================================================================================  The Table  ========-->
+            <p:dataTable emptyMessage="لاتوجد نتائج" id="tblPlayers" var="player"
+                         value="#{enemyActivityController.orgNamesList}"
+                         style="margin-top:40px;text-align: center">
+                <f:facet name="header">
+                    <div class="p-grid p-jc-between">
+                        <div class="p-col-4">
+                            <h:outputText value="كشف #{msg.tOrg} للمحافظات" style="font-size: x-large;"/>
+                        </div>
+                    </div>
+                </f:facet>
+                <p:columnGroup type="header">
+                    <p:row>
+                        <p:column style="text-align: center" colspan="#{enemyActivityController.columnCount() + 1}"
+                                  headerText="المحافظات"/>
+                    </p:row>
+                    <p:row>
+                        <p:column rendered="#{enemyActivityController.cityList.size() != 0}" style="text-align: center"
+                                  headerText="#{msg.tOrg}"/>
+                        <p:columns var="col" value="#{enemyActivityController.cityList}" headerText="#{col}"
+                                   style="text-align: center"/>
+                    </p:row>
+                </p:columnGroup>
+                <p:column>
+                    <h:outputLabel value="#{player}" style="text-align: center"/>
+                </p:column>
+                <p:columns var="cityName" value="#{enemyActivityController.cityList}" style="text-align: center">
+                    <h:outputLabel value="#{enemyActivityController.getOrgNames1(cityName,player)}"/>
+                </p:columns>
+            </p:dataTable>
+        </h:form>
+
+        <!--        IN PRINT DOC METHOD, PASS DOCUMENT'S NAME TO PRINT ITS CONTENT-->
+        <!--        ADD THIS ELEMENT TO EACH PAGE HAS A PRINT BUTTON-->
+        <iframe width="100%" height="1000px" id="print-page" style="display:none;"></iframe>
+
+    </ui:define>
+
+</ui:composition>
+

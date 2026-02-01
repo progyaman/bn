@@ -1,0 +1,608 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">كشف العمليات النوعية</ui:define>
+
+
+    <ui:define name="content">
+        <h:form id="form" rendered="#{request.isUserInRole('Kshofat View')}">
+            <p:growl id="growl" showDetail="true"/>
+            <p:outputPanel id="manage-product-content" style="overflow-scrolling: auto" class="ui-fluid">
+                <p:fieldset legend="كشف العمليات النوعية">
+
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-3 ">
+                            <p:outputLabel styleClass="p-text-bold" value="تحديد بين تاريخين" for="dates"/>
+                            <p:datePicker selectionMode="range"
+                                          id="dates"
+                                          monthNavigator="true" yearNavigator="true"
+                                          value="#{operationActivityController.dateRange}"
+                                          touchUI="true" showOnFocus="true" showButtonBar="true"
+                                          showOtherMonths="true"
+                                          required="true"
+                                          requiredMessage=" بحث بين تاريخين"
+                                          onchange="PF('form').filter()"
+                                          placeholder="بحث بين تاريخين"/>
+                        </div>
+                        <div class="p-field p-col-3">
+                            <p:outputLabel styleClass="p-text-bold" value="نوع الحدث "
+                                           for="activityType"/>
+                            <p:selectCheckboxMenu id="activityType" label="يرجى الاختيار" filter="true"
+                                                  filterPlaceholder="البحث"
+                                                  filterMatchMode="contains"
+                                                  requiredMessage="يرجى ملئ حقل  #{msg.tOrg}"
+                                                  valueChangeListener="#{operationActivityController.getOrgNameByActivityType}"
+                                                  value="#{operationActivityController.activiyTypeIDs}"
+                                                  dir="rtl"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  converter="omnifaces.SelectItemsConverter">
+                                <f:selectItems value="#{operationActivityController.activityTypeList}"
+                                               var="activityType" itemLabel="#{activityType.name}"
+                                               itemValue="#{activityType.id}"/>
+                                <p:ajax event="change" update="org monjaz monjazLabel"
+                                        process="@this"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="org monjaz monjazLabel"/>
+                            </p:selectCheckboxMenu>
+
+                        </div>
+
+                        <div class="p-field p-col-3">
+                            <p:outputLabel styleClass="p-text-bold" value="#{msg.org}" for="org"/>
+
+                            <p:selectCheckboxMenu id="org" label="يرجى الاختيار" filter="true"
+                                                  filterMatchMode="contains"
+                                                  filterPlaceholder="البحث" required="true"
+                                                  requiredMessage="يرجى اختيار #{msg.org}"
+                                                  valueChangeListener="#{operationActivityController.getTypeOrgNameByActivityTypeAndOrgName}"
+                                                  value="#{operationActivityController.organizationIDs}"
+                                                  multiple="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  dir="rtl"
+                                                  converter="omnifaces.SelectItemsConverter">
+                                <f:selectItems value="#{operationActivityController.organizationList}"
+                                               var="org1" itemLabel="#{org1.orgName.name}"
+                                               itemValue="#{org1.orgName.id}"/>
+                                <p:ajax event="change" process="@this" update="typeOrgName"/>
+                                <p:ajax event="itemUnselect" process="@this" update="typeOrgName"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="typeOrgName"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-3">
+                            <p:outputLabel styleClass="p-text-bold" value="#{msg.tOrg}"
+                                           for="typeOrgName"/>
+                            <p:selectCheckboxMenu id="typeOrgName" required="true" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  updateLabel="true"
+                                                  showCheckbox="true"
+                                                  value="#{operationActivityController.orgActivityTypeStrings}"
+                                                  requiredMessage="يرجى اختيار #{msg.tOrg} #{msg.org}"
+                                                  converter="omnifaces.SelectItemsConverter">
+
+                                <f:selectItems var="typeOrg"
+                                               value="#{operationActivityController.orgActivityTypeSelected}"
+                                               itemLabel="#{typeOrg.name}"
+                                               itemValue="#{typeOrg.name}"/>
+                                <p:ajax event="change"
+                                        process="@this" />
+                            </p:selectCheckboxMenu>
+                        </div>
+                    </div>
+
+
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-3">
+                            <p:outputLabel for="selectSecTypes" styleClass="p-text-bold" value="#{msg.hsdAndForce}"/>
+                            <p:selectCheckboxMenu id="selectSecTypes" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار #{msg.hsdAndForce}"
+                                                  value="#{operationActivityController.otherSideId }"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="otherHands"
+                                               value="#{operationActivityController.otherHands}"
+                                               itemLabel="#{otherHands.name}"
+                                               itemValue="#{otherHands.id}"/>
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-3 ">
+                            <p:outputLabel id="monjazLabel" for="monjaz" styleClass="p-text-bold" value="التبعية المنجزة"/>
+                            <p:selectCheckboxMenu id="monjaz" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  disabled="#{operationActivityController.disableMonjazInput}"
+                                                  required="#{operationActivityController.requiredMonjazInput}"
+                                                  requiredMessage=" يرجى اختيار التبعية المنجزة"
+                                                  value="#{operationActivityController.monjaz}">
+
+                                <f:selectItem itemLabel="#{msg.hashd}" itemValue="#{msg.hashd}"/>
+                                <f:selectItem itemLabel="القوات الأمنية" itemValue="القوات الأمنية"/>
+                                <f:selectItem itemLabel="مشترك" itemValue="مشترك"/>
+                                <f:selectItem itemLabel="المدنيين" itemValue="المدنيين"/>
+                                <f:selectItem itemLabel="البنى التحتية" itemValue="البنى التحتية"/>
+
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-3 ">
+                            <p:outputLabel for="citiesID" styleClass="p-text-bold" value="المحافظات"/>
+                            <p:selectCheckboxMenu id="citiesID" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  filterNormalize="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار المحافظات"
+                                                  value="#{operationActivityController.cityIdList }"
+                                                  valueChangeListener="#{operationActivityController.findDistrictByCity}"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="city"
+                                               value="#{operationActivityController.cities}"
+                                               itemLabel="#{city.name}"
+                                               itemValue="#{city.id}"/>
+                                <p:ajax event="change"
+                                        process="@this" update="district"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="district"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-3 ">
+                            <p:outputLabel for="district" styleClass="p-text-bold" value="القضاء"/>
+                            <p:selectCheckboxMenu id="district" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار الأقضية"
+                                                  value="#{operationActivityController.districtIdList }"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="district"
+                                               value="#{operationActivityController.districts}"
+                                               itemLabel="#{district.name}"
+                                               itemValue="#{district.id}"/>
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-3">
+                            <p:outputLabel styleClass="p-text-bold" value="المهمة"
+                            />
+                            <p:selectOneMenu label="  المهمة" filter="true"
+                                             filterMatchMode="contains"
+                                             filterPlaceholder="البحث"
+                                             autoWidth="true"
+
+                                             dir="rtl"
+                                             value="#{operationActivityController.missionId}"
+                                             converter="omnifaces.SelectItemsIndexConverter">
+                                <f:selectItem itemLabel="يرجى الاختيار" noSelectionOption="true"/>
+                                <f:selectItems value="#{operationActivityController.missionNames}"
+                                               var="missionName" itemLabel="#{missionName.name}"
+                                               itemValue="#{missionName.id}"/>
+
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="p-field p-col-3">
+                            <p:outputLabel styleClass="p-text-bold" value="النتائج"
+                            />
+                            <p:selectOneButton style="direction: ltr" required="true"
+                                               requiredMessage="يرجى اختيار النتائج"
+                                               value="#{operationActivityController.result}">
+                                <f:selectItem itemLabel="يحتوي" itemValue="#{true}"/>
+                                <f:selectItem itemLabel="لا يحتوي" itemValue="#{false}"/>
+                            </p:selectOneButton>
+                        </div>
+
+
+                        <div class="p-field p-col-12 p-xl-3 p-lg-3 p-md-12">
+                            <p:outputLabel styleClass="p-text-bold" value="اسم ال#{msg.ad2} " for="arms2"/>
+                            <p:selectCheckboxMenu id="arms2" label="يرجى الاختيار"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  value="#{operationActivityController.nameAdditionArms}"
+                                                  dir="rtl" required="true"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  requiredMessage="يرجى الإختيار"
+                                                  converter="omnifaces.SelectItemsConverter">
+
+                                <f:selectItem itemLabel="ميداني" itemValue="ميداني"
+                                />
+                                <f:selectItem itemLabel="علني" itemValue="علني"
+                                />
+                                <f:selectItem itemLabel="فني" itemValue="فني"
+                                />
+                                <f:selectItem itemLabel="رسمي" itemValue="رسمي"
+                                /> <f:selectItem itemLabel="مصدر بشري" itemValue="مصدر بشري"
+                            /> <f:selectItem itemLabel="عكسي" itemValue="عكسي"
+                            />
+                                <p:ajax event="change" update="tra3"/>
+                                <p:ajax event="change" update="tra3Text"/>
+                                <p:ajax event="change" update="arms2"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="arms2"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="tra3"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="tra3Text"/>
+
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-12 p-xl-3 p-lg-3 p-md-12">
+                            <p:outputLabel id="tra3Text" styleClass="p-text-bold" value="نوع ال#{msg.ad2}" for="tra3"/>
+                            <p:selectCheckboxMenu
+                                    disabled="#{!operationActivityController.nameAdditionArms.contains('فني') and !operationActivityController.nameAdditionArms.contains('مصدر بشري')}"
+                                    required="#{operationActivityController.armsCheck}"
+                                    id="tra3" label="يرجى الاختيار" filter="true"
+                                    filterPlaceholder="البحث"
+                                    filterMatchMode="contains"
+                                    multiple="true"
+                                    dynamic="true"
+                                    requiredMessage="يرجى اختيار #{msg.ad}"
+                                    value="#{operationActivityController.typeArmsListId}"
+                                    dir="rtl"
+                                    converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems value="#{operationActivityController.getTypeArmsListByName()}"
+                                               var="arm"
+                                               itemLabel="#{arm.name}"
+                                               itemValue="#{arm.id}"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+
+                        <div class="p-field p-col-5">
+                            <p:outputLabel for="reportName" styleClass="p-text-bold" value="عنوان الكشف"/>
+                            <p:inputText value="#{operationActivityController.reportName}"
+                                         id="reportName"
+                                         required="true" requiredMessage="يرجى إدخال عنوان الكشف"/>
+                        </div>
+
+                        <div class="p-col-4 p-jc-center p-ac-center ">
+                            <p:commandButton id="filterBtn" value="بحث" icon="pi pi-check"
+                                             styleClass="p-mt-5 ui-button-success"
+                                             actionListener="#{operationActivityController.onFilter}"
+                                             style="width: 90px;"
+                                             update="form dt-militaryactivity"
+                                             process="@form,dates"
+                            />
+                            <p:commandButton value="اعادة ضبط الكشف" icon="pi pi-refresh" styleClass="p-mt-5"
+                                             actionListener="#{operationActivityController.init}"
+                                             style="width: 160px; margin-right: 1rem"
+                                             update="form"
+                            />
+
+
+                        </div>
+                    </div>
+                </p:fieldset>
+                <p:blockUI block="form" trigger="filterBtn">
+                    <i class="pi pi-spin pi-spinner" style="font-size: 6rem"></i>
+                </p:blockUI>
+            </p:outputPanel>
+
+
+            <!--======================================================================================  The Table  ========-->
+
+            <p:dataTable stripedRows="true" dir="rtl" id="dt-militaryactivity"
+                         widgetVar="dtmilitaryactivity"
+                         var="militaryactivity" rowHover="true"
+                         value="#{operationActivityController.dataMap}" reflow="true"
+                         filterDelay="500"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         currentPageReportTemplate=" المجموع : {totalRecords} "
+                         emptyMessage="لا توجد نتائج"
+                         style="margin-top:40px;text-align: center"
+                         rendered="#{not empty operationActivityController.dataMap}"
+                         paginator="true" paginatorPosition="bottom" rows="10"
+            >
+                <f:facet name="header">
+                    <div class="p-grid">
+                        <div class="p-col-12">
+                            <p:fieldset id="toto" legend="عرض الطباعة">
+
+                                <p:selectBooleanCheckbox value="#{operationActivityController.serial}"
+                                                         itemLabel="التسلسل">
+                                    <p:ajax update="toto" process="@this"/>
+                                </p:selectBooleanCheckbox>
+                                <p:selectBooleanCheckbox  value="#{operationActivityController.date}"
+                                                         itemLabel="الوقت والتاريخ">
+                                    <p:ajax update="toto" process="@this"/>
+                                </p:selectBooleanCheckbox>
+                                <p:selectBooleanCheckbox value="#{operationActivityController.news}" itemLabel="الخبر">
+                                    <p:ajax update="toto" process="@this"/>
+                                </p:selectBooleanCheckbox>
+
+                                <p:selectBooleanCheckbox value="#{operationActivityController.activity}"
+                                                         itemLabel="نوع الحدث">
+                                    <p:ajax update="toto" process="@this"/>
+                                </p:selectBooleanCheckbox>
+                                <p:selectBooleanCheckbox value="#{operationActivityController.activityType}"
+                                                         itemLabel="#{msg.tOrg}">
+                                    <p:ajax update="toto" process="@this"/>
+                                </p:selectBooleanCheckbox>
+                                <p:selectBooleanCheckbox value="#{operationActivityController.department}"
+                                                         itemLabel="الجهة المنفذة">
+                                    <p:ajax update="toto" process="@this"/>
+                                </p:selectBooleanCheckbox>
+                                <p:selectBooleanCheckbox value="#{operationActivityController.place}"
+                                                         itemLabel="المكان">
+                                    <p:ajax update="toto" process="@this"/>
+                                </p:selectBooleanCheckbox>
+                                <p:selectBooleanCheckbox value="#{operationActivityController.forceHolding}"
+                                                         itemLabel="#{msg.forin}">
+                                    <p:ajax update="toto" process="@this"/>
+                                </p:selectBooleanCheckbox>
+                                <p:selectBooleanCheckbox value="#{operationActivityController.additionArms}"
+                                                         itemLabel="#{msg.ad}">
+                                    <p:ajax update="toto" process="@this"/>
+                                </p:selectBooleanCheckbox>
+                                <p:selectBooleanCheckbox value="#{operationActivityController.durationBoolean}"
+                                                         itemLabel="مدة الحدث">
+                                    <p:ajax update="toto" process="@this"/>
+                                </p:selectBooleanCheckbox>
+                                <p:selectBooleanCheckbox value="#{operationActivityController.request_muId}"
+                                                         itemLabel="جهة الطلب">
+                                    <p:ajax update="toto" process="@this"/>
+                                </p:selectBooleanCheckbox>
+                                <p:selectBooleanCheckbox value="#{operationActivityController.resultPrint}"
+                                                         itemLabel="النتائج">
+                                    <p:ajax update="toto" process="@this"/>
+                                </p:selectBooleanCheckbox>
+                                <p:selectBooleanCheckbox value="#{operationActivityController.subject}"
+                                                         itemLabel="العنوان">
+                                    <p:ajax update="toto" process="@this"/>
+                                </p:selectBooleanCheckbox>
+                                <p:commandButton rendered="#{operationActivityController.dataMap.size() != 0}"
+                                                 value="طباعة" icon="pi pi-print"
+                                                 action="#{operationActivityController.incrementCounter()}"
+                                                 process="@this toto" update="toto"
+                                                 style="width: 140px ; margin-right: 1rem"
+                                                 onclick="printDoc('operationActivityPrint')"/>
+
+                                <p:commandButton icon="pi pi-eye" value="عرض المرفقات"
+                                                 update=":form:uploadDetils"
+                                                 actionListener="#{operationActivityController.getAllUploads}"
+                                                 oncomplete="PF('uploadDialog').show()"
+                                                 process="@this" style="float: left"
+                                                 styleClass="edit-button">
+
+                                </p:commandButton>
+                            </p:fieldset>
+                        </div>
+
+                    </div>
+                </f:facet>
+
+                <p:column headerText="التسلسل" width="50" style="text-align: center">
+                    <h:outputText
+                            value="#{j = j+1}">
+                    </h:outputText>
+                </p:column>
+                <p:column filterBy="#{militaryactivity.date_time}"  styleClass="preventEnter" style="text-align: center"
+                          headerText="الوقت و التاريخ"  filterMatchMode="contains"
+                          width="140">
+                    <h:outputText value="#{militaryactivity.date_time} "/>
+                    <h:outputText filterBy="#{militaryactivity.time_news}"
+                            value="#{militaryactivity.time_news}">
+                    </h:outputText>
+                </p:column>
+                <p:column filterMatchMode="contains" headerText="الخبر"  filterBy="#{militaryactivity.the_news}"
+                          width="580">
+                    <h:outputText value="#{militaryactivity.the_news}"/>
+                </p:column>
+                <p:column headerText="نوع الحدث" style="text-align: center" filterBy="#{militaryactivity.activityType.name}"
+                          width="150">
+                    <h:outputText value="#{militaryactivity.activityType.name}"/>
+
+                </p:column>
+                <p:column headerText="#{msg.tOrg}" style="text-align: center" filterBy="#{militaryactivity.typeOrgNamesString}"
+                          width="150">
+                        <h:outputText value="#{militaryactivity.typeOrgNamesString}"/><br/>
+                </p:column>
+
+                <p:column headerText="#{msg.ad}" style="text-align: center"
+                          width="150">
+                    <h:outputText value="#{militaryactivity.nameAdditionArms.concat(' / ') } #{militaryactivity.additionArms.typeArms.name}"  />
+
+                </p:column>
+                <p:column headerText="الجهة" style="text-align: center"
+                          width="150">
+                    <ui:repeat value="#{militaryactivity.otherHands}" var="ot">
+                        <h:outputText value="#{ot.name}"/><br/>
+                    </ui:repeat>
+                </p:column>
+                <p:column filterMatchMode="contains" headerText="#{msg.forin}" width="140"
+                          >
+                    <ui:repeat value="#{militaryactivity.holdingForces}" var="holdingForce">
+                        <h:outputText value="#{holdingForce.name}"/><br/>
+                    </ui:repeat>
+                </p:column>
+                <p:column headerText=" مدة الحدث (بالساعة)" style="text-align: center"
+                          width="150">
+                    <h:outputText value="#{militaryactivity.duration}"  />
+
+                </p:column>
+                <p:column headerText="جهة الطلب" style="text-align: center"
+                          width="150">
+                    <h:outputText value="#{operationActivityController.getPathByMuId(militaryactivity.request_muId)}"  />
+
+                </p:column>
+
+                <p:column filterMatchMode="contains" filterBy="#{militaryactivity.neighbourhood }  #{militaryactivity.handDistrict.name}" headerText="المكان" style="text-align: center"
+                          width="130"
+                >
+                    <h:outputText
+                            value="#{militaryactivity.city.name.concat(' / ')}  #{militaryactivity.district.name.concat(' / ')}  #{militaryactivity.handDistrict.name.concat(' / ')} #{militaryactivity.neighbourhood}"/>
+                </p:column>
+                <p:column rendered="#{operationActivityController.result == true}"
+                          headerText="نتائج العدو"
+                          width="160"
+                >
+                    <p:outputPanel>
+                        <h:outputText rendered="#{militaryactivity.enemyCasualties.dead != 0}"
+                                      value="ال#{msg.kll}ى :  #{militaryactivity.enemyCasualties.dead} | "/>
+                        <h:outputText rendered="#{militaryactivity.enemyCasualties.arrested != 0}"
+                                      value="ال#{msg.dets} :  #{militaryactivity.enemyCasualties.arrested}"/>
+                        <h:outputText rendered="#{militaryactivity.enemyCasualties.wounded != 0}"
+                                      value="ال#{msg.cte}ى :  #{militaryactivity.enemyCasualties.wounded} | "/>
+
+                    </p:outputPanel>
+<!--                    <p:outputPanel>-->
+<!--                        <h:outputText rendered="#{militaryactivity.enemyCasualties.drugs != 0}"-->
+<!--                                      value="مخدرات :  #{militaryactivity.enemyCasualties.drugs} | "/>-->
+<!--                        <h:outputText rendered="#{militaryactivity.enemyCasualties.fuel != 0}"-->
+<!--                                      value="#{msg.ol} :  #{militaryactivity.enemyCasualties.fuel}  "></h:outputText>-->
+
+<!--                    </p:outputPanel>-->
+<!--                    <p:outputPanel>-->
+<!--                        <h:outputText rendered="#{militaryactivity.enemyCasualties.heavyEquipment != 0}"-->
+<!--                                      value="اسلحة ثقيلة :  #{militaryactivity.enemyCasualties.heavyEquipment} | "/>-->
+<!--                        <h:outputText rendered="#{militaryactivity.enemyCasualties.document != 0}"-->
+<!--                                      value="#{msg.fils} :  #{militaryactivity.enemyCasualties.document} "/>-->
+
+<!--                    </p:outputPanel>-->
+<!--                    <p:outputPanel>-->
+<!--                        <h:outputText rendered="#{militaryactivity.enemyCasualties.moneyAmount != 0}"-->
+<!--                                      value="مبالغ مالية :  #{militaryactivity.enemyCasualties.moneyAmount} | "/>-->
+<!--                        <h:outputText rendered="#{militaryactivity.enemyCasualties.tunnel != 0}"-->
+<!--                                      value="انفاق :  #{militaryactivity.enemyCasualties.tunnel}  "/>-->
+
+<!--                    </p:outputPanel>-->
+<!--                    <p:outputPanel>-->
+<!--                        <h:outputText rendered="#{militaryactivity.enemyCasualties.gunDestroy != 0}"-->
+<!--                                      value="اسلحة :  #{militaryactivity.enemyCasualties.gunDestroy} | "/>-->
+<!--                        <h:outputText rendered="#{militaryactivity.enemyCasualties.technicalEquipmentDestroy != 0}"-->
+<!--                                      value="معدات فنية :  #{militaryactivity.enemyCasualties.technicalEquipmentDestroy} "/>-->
+
+<!--                    </p:outputPanel>-->
+<!--                    <p:outputPanel>-->
+<!--                        <h:outputText rendered="#{militaryactivity.enemyCasualties.vehiclesDestroy != 0}"-->
+<!--                                      value="عجلة :  #{militaryactivity.enemyCasualties.vehiclesDestroy} | "/>-->
+<!--                        <h:outputText rendered="#{militaryactivity.enemyCasualties.nestDestroy != 0}"-->
+<!--                                      value="مضافة :  #{militaryactivity.enemyCasualties.nestDestroy}  "/>-->
+
+<!--                    </p:outputPanel>-->
+<!--                    <p:outputPanel>-->
+<!--                        <h:outputText rendered="#{militaryactivity.enemyCasualties.wounded != 0}"-->
+<!--                                      value="ال#{msg.cte}ى :  #{militaryactivity.enemyCasualties.wounded} | "/>-->
+<!--                        <h:outputText rendered="#{militaryactivity.enemyCasualties.explosive != 0}"-->
+<!--                                      value="#{msg.bom} :  #{militaryactivity.enemyCasualties.explosive}  "/>-->
+
+<!--                    </p:outputPanel>-->
+
+
+                </p:column>
+            </p:dataTable>
+
+            <p:dialog showEffect="fade" modal="true" width="900" height="600"
+                      dynamic="true"
+                      widgetVar="uploadDialog" resizable="false"
+                      closable="true"
+                      position="center">
+                <p:toolbar rendered="false">
+                    <p:toolbarGroup>
+                        <h:commandButton id="delete-products-button" value="#{operationActivityController.getDeleteButtonMessage()}"
+                                         icon="pi pi-download"
+                                         actionListener="#{operationActivityController.deleteSelectedProducts}"
+                                         styleClass="ui-button-warning"
+                                         disabled="#{!operationActivityController.hasSelectedProducts()}"
+                                         update="@this">
+                        </h:commandButton>
+                    </p:toolbarGroup>
+                </p:toolbar>
+                <p:outputPanel id="uploadDetils">
+                    <p:dataTable stripedRows="true"
+                                 selection="#{operationActivityController.selectedProducts}"
+                                 var="uploadFile1"
+                                 value="#{operationActivityController.getAllUploads()}"
+                                 rowKey="#{uploadFile1.id}"
+                                 size="small" scrollHeight="true"
+                                 showGridlines="true"
+                                 paginator="true"
+                                 rows="15"
+                                 reflow="true"
+                                 rowSelectMode="add" paginatorPosition="bottom"
+                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 currentPageReportTemplate=" المجموع : {totalRecords} "
+
+                                 emptyMessage="لا توجد مرفقات">
+
+                        <p:column headerText="التسلسل" width="80" style="text-align: center">
+                            <h:outputText
+                                    value="#{j = j+1}">
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="اسم المرفق"
+                                  style="text-align: center">
+                            <h:outputText
+                                    value="#{operationActivityController.nameFileUpload(uploadFile1.pathFile)}"/>
+                        </p:column>
+                        <p:column headerText="صيغة المرفق" width="100"
+                                  style="text-align: center">
+                            <h:outputText
+                                    value="#{operationActivityController.extensionFileUpload(uploadFile1.pathFile)}"/>
+                        </p:column>
+
+                        <p:column headerText="تحميل المرفق" width="90"
+                                  style="text-align: center">
+                            <p:commandButton
+                                    action="#{operationActivityController.download(uploadFile1)}"
+                                    styleClass="edit-button rounded-button "
+                                    process="@this" ajax="false"
+                                    icon="pi pi-download"/>
+                        </p:column>
+
+                    </p:dataTable>
+                </p:outputPanel>
+                <f:facet name="footer">
+                    <p:commandButton value="الغاء" icon="pi pi-times"
+                                     action="#{militaryactivityListController.clearOutput()}"
+                                     onclick="PF('uploadDialog').hide()" class="ui-button-secondary">
+                    </p:commandButton>
+                </f:facet>
+            </p:dialog>
+        </h:form>
+
+        <!--        IN PRINT DOC METHOD, PASS DOCUMENT'S NAME TO PRINT ITS CONTENT-->
+        <!--        ADD THIS ELEMENT TO EACH PAGE HAS A PRINT BUTTON-->
+        <iframe width="100%" height="1000px" id="print-page" style="display:none;"></iframe>
+
+    </ui:define>
+
+</ui:composition>
+

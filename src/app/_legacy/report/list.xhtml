@@ -1,0 +1,205 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">التقارير</ui:define>
+
+    <ui:define name="viewname">
+<!--        <li><p:link outcome="/dashboard">الصفحة الرئيسية</p:link></li>-->
+        <li><i class="pi pi-chevron-right"></i></li>
+        <li>
+            <p:link outcome="/admin/report/list">التقارير</p:link>
+        </li>
+    </ui:define>
+    <ui:define name="content">
+        <h:form id="form" rendered="#{request.isUserInRole('Report View')}">
+            <div class="p-grid crud">
+                <div class="p-col-12">
+                    <h:panelGroup>
+                    <div class="card">
+                        <h2>التقارير</h2>
+                        <p:divider/>
+                        <p:growl id="messages" showDetail="true"/>
+
+                        <p:toolbar styleClass="p-mb-4">
+                            <p:toolbarGroup>
+
+                            </p:toolbarGroup>
+
+                        </p:toolbar>
+
+                        <p:dataTable stripedRows="true"   dir="rtl" id="dt-report" widgetVar="dtreport" var="reportVar"
+                                     value="#{reportListController.list}" reflow="true"
+                                     emptyMessage="لا توجد تقارير"
+                                      paginator="true" rows="20"
+                                      size="small"
+                                      paginatorPosition="bottom">
+                            <f:facet name="header">
+                                <div class="products-table-header p-py-4" style="text-align: right">
+                                    <span class="filter-container ui-input-icon-right">
+                                        <i class="pi pi-search"></i>
+                                        <p:inputText id="globalFilter" styleClass="preventEnter"  onkeyup="PF('dtreport').filter()"
+                                                     placeholder="البحث ..."/>
+                                    </span>
+                                </div>
+                            </f:facet>
+                            <p:column   exportable="false" width="170" headerText="تعديل / حـذف / طبـاعـة">
+                                <p:commandButton  rendered="#{request.isUserInRole('Report Update')}"  icon="pi pi-pencil" update=":form:manage-product-content"
+                                                 oncomplete="PF('reportDialog').show()"
+                                                 styleClass="edit-button rounded-button  p-m-2" process="@this">
+                                    <f:setPropertyActionListener value="#{reportVar}"
+                                                                 target="#{reportController.selected}"/>
+                                </p:commandButton>
+                                <p:commandButton rendered="#{request.isUserInRole('Report Delete')}"  class="ui-button-danger rounded-button" icon="pi pi-trash"
+                                                 process="@this" oncomplete="PF('deleteProductDialog').show()"  >
+                                    <f:setPropertyActionListener value="#{reportVar}"
+                                                                 target="#{reportListController.selected}"/>
+
+                                </p:commandButton>
+                                <p:linkButton   icon="pi pi-print" outcome="/admin/report/reportprint"
+                                              styleClass="edit-button rounded-button  p-m-2" process="@this" >
+                                    <f:param name="id" value="#{reportVar.id}"/>
+                                </p:linkButton>
+                            </p:column>
+                            <p:column headerText="التسلسل" style="width: 10%"
+                                      sortBy="#{reportListController.list.indexOf(reportVar)+1}">
+                                <h:outputText
+                                        value="#{reportListController.list.indexOf(reportVar)+1}">
+                                </h:outputText>
+                            </p:column>
+                            <p:column  headerText="من " sortBy="#{reportVar.fromThem}"
+                                      filterBy="#{reportVar.fromThem}" width="90" >
+                                <h:outputText value="#{reportVar.fromThem}"/>
+                            </p:column>
+
+                            <p:column  headerText="الى " sortBy="#{reportVar.toThem}"
+                                      filterBy="#{reportVar.toThem}" width="90">
+                                <h:outputText value="#{reportVar.toThem}"/>
+                            </p:column>
+
+                            <p:column  headerText="رقم الصادر" sortBy="#{reportVar.id}"
+                                      filterBy="#{reportVar.id}" width="90" >
+                                <h:outputText value="#{reportVar.id}" />
+                            </p:column>
+                            <p:column  headerText="الموضوع " sortBy="#{reportVar.theTopic}"
+                                      filterBy="#{reportVar.theTopic}" width="90">
+                                <h:outputText value="#{reportVar.theTopic}"/>
+                            </p:column>
+                            <p:column  headerText="التفاصيل " sortBy="#{reportVar.details}"
+                                       filterBy="#{reportVar.details}" width="90">
+                                <h:outputText value="#{reportVar.details}"/>
+                            </p:column>
+                            <p:column
+                                    field="date" headerText="التاريخ" filterMatchMode="between"
+                                    filterBy="#{reportVar.date}"
+                                    width="200" >
+                                <f:facet name="filter">
+                                    <p:datePicker selectionMode="range" onchange="PF('dtreport').filter()"/>
+                                </f:facet>
+                            </p:column>
+                            <p:column filterMatchMode="exact" headerText="نوع التقرير"  width="90"   sortBy="#{reportVar.reportType}"
+                                                             filterBy="#{reportVar.reportType}">
+                                                       <h:outputText value="#{reportVar.reportType}"/>
+                                                       <f:facet name="filter">
+                                                           <p:selectOneMenu filter="true" onchange="PF('dtreport').filter()">
+                                                               <f:selectItem itemLabel="الجميع" itemValue="#{null}" noSelectionOption="true"/>
+                                                               <f:selectItems value="#{reportController.reportTypeEnum()}" var="r"
+                                                                              itemLabel="#{r.reportType}" itemValue="#{r.reportType}"/>
+                                                           </p:selectOneMenu>
+                                                       </f:facet>
+                                                   </p:column>
+
+                        </p:dataTable>
+
+                        <p:dialog header="نافذة تعديل التقرير" showEffect="fade" modal="true" width="650"
+                                  widgetVar="reportDialog" responsive="true">
+                            <p:outputPanel id="manage-product-content" class="ui-fluid">
+                                <p:outputPanel >
+                                    <div class="ui-fluid p-formgrid p-grid p-py-4">
+                                        <div class="p-field p-col-12 p-md-6">
+                                            <p:outputLabel styleClass="p-text-bold" value="من " for="report-f"/>
+                                            <p:inputText required="true" maxlength="250" id="report-f"
+                                                         requiredMessage="يرجى ملئ الحقل ( من )"
+                                                         value="#{reportController.selected.fromThem}"/>
+
+                                        </div>
+                                        <div class="p-field p-col-12 p-md-6">
+                                            <p:outputLabel styleClass="p-text-bold" value="ألى " for="report-t"/>
+                                            <p:inputText required="true" maxlength="250" id="report-t"
+                                                         requiredMessage="يرجى ملئ الحقل (ألى)"
+                                                         value="#{reportController.selected.toThem}"/>
+
+                                        </div>
+                                        <div class="p-field p-col-12 p-md-12">
+                                            <p:outputLabel styleClass="p-text-bold" value="الموضوع" for="theTopic"/>
+                                            <p:inputTextarea required="true" maxlength="250" id="theTopic"
+                                                             requiredMessage="يرجى ملئ حقل الموضوع"
+                                                             value="#{reportController.selected.theTopic}"/>
+
+                                        </div>
+                                        <div class="p-field p-col-12 p-md-12">
+                                            <p:outputLabel styleClass="p-text-bold" value="التفاصيل" for="details"/>
+                                            <p:inputTextarea required="true" maxlength="250" id="details"
+                                                             requiredMessage="يرجى ملئ حقل الموضوع"
+                                                             value="#{reportController.selected.details}"/>
+
+                                        </div>
+
+
+                                        <div class="p-field p-col-12 p-md-4">
+                                            <p:outputLabel styleClass="p-text-bold" value="تاريخ التقرير " for="date"/>
+                                            <p:datePicker maxlength="250" monthNavigator="true" yearNavigator="true" showButtonBar="true" required="true" requiredMessage="يرجى ملئ حقل ألتاريخ"
+                                                          id="date"
+                                                          value="#{reportController.selected.date}"/>
+                                        </div>
+                                        <div class="p-field p-col-12 p-md-4">
+                                            <p:outputLabel styleClass="p-text-bold" value="نوع التقرير "/>
+                                            <p:selectOneMenu id="w1" dir="rtl" value="#{reportController.selected.reportType}">
+                                                <f:selectItem itemLabel="يرجى الأختيار" itemValue=""
+                                                              noSelectionOption="true"/>
+                                                <f:selectItems value="#{reportController.reportTypeEnum()}" var="r" itemLabel="#{r.reportType}"
+                                                               itemValue="#{r.reportType}"/>
+                                            </p:selectOneMenu>
+                                        </div>
+                                    </div>
+                                </p:outputPanel>
+                            </p:outputPanel>
+
+                            <f:facet name="footer">
+                                <p:commandButton value="حفظ" icon="pi pi-check"
+                                                 actionListener="#{reportController.doCreate()}"
+                                                 action="#{reportListController.inti()}"
+                                                 update="manage-product-content "
+                                                 process="manage-product-content  @this"
+                                                 onclick="PF('reportDialog').hide()"/>
+                                <p:commandButton value="الغاء" icon="pi pi-times"
+                                                 onclick="PF('reportDialog').hide()" class="ui-button-secondary"/>
+
+                            </f:facet>
+
+                        </p:dialog>
+
+                        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300"
+                                         message="هل انت متأكد من الحذف ؟" header="تأكيد الحذف" severity="warn">
+                            <p:commandButton value="نعم" icon="pi pi-check"
+                                             actionListener="#{reportListController.remove()}"
+                                             action="#{reportListController.inti()}"
+                                             process="@this"
+                                             oncomplete="PF('deleteProductDialog').hide()"/>
+                            <p:commandButton value="كلا" type="button" styleClass="ui-button-secondary"
+                                             icon="pi pi-times" onclick="PF('deleteProductDialog').hide()"/>
+                        </p:confirmDialog>
+
+
+                    </div>
+                    </h:panelGroup>
+                </div>
+            </div>
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

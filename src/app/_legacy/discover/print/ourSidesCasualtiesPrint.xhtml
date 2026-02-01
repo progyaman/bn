@@ -1,0 +1,95 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/admin/discover/print/template.xhtml">
+
+    <ui:define name="title">البيان - كشف</ui:define>
+
+    <ui:define name="content">
+        <div class="container mx-auto" style="padding: 1rem; font-family: 'Times New Roman' !important; direction: rtl; min-height: 1220px;">
+            <div class="row text-center border-bottom  align-items-center" style="border-bottom: 1px solid #000!important; margin-bottom: 1rem; padding-bottom: 1rem;">
+                <div class="col-4" style="font-size: 25px !important; font-weight: bold;">
+                    #{msg['hsd']} <br/>
+                    #{msg.mam} <br/>
+                    #{msg.mmam} <br/>
+                    #{msg.mtt}
+                </div>
+                <div class="col-4">
+                    <img src="#{resource['images/int-logo.svg']}" height="150"/>
+                </div>
+                <div class="col-4" style="font-size: 25px !important; font-weight: bold;">
+                    نظام البيان الالكتروني <br/>
+                    العدد: #{ourSidesCasualtiesController.counter.itsValue} <br/>
+                    التاريخ: <span id="dateSpan"></span> <br/>
+                    المنشئ: #{loginController.current_user.jihadNumber}
+                </div>
+            </div>
+            <p style="font-size: 28px !important; font-weight: bold; text-align: center">
+                <p:outputPanel style="font-size: 28px !important; font-weight: bold; text-align: center">
+                    <p:outputPanel rendered="#{ourSidesCasualtiesController.missionName.name != null}" style="font-size: 28px !important; font-weight: bold; text-align: center">
+                        م/ #{ourSidesCasualtiesController.missionName.name}
+                        <br/>
+                    </p:outputPanel>
+                    ع/  #{ourSidesCasualtiesController.reportName}<br/>
+                    من تاريخ #{ourSidesCasualtiesController.dateRange.get(0)} الى #{ourSidesCasualtiesController.dateRange.get(1)}
+                </p:outputPanel>
+            </p>
+            <table class="mx-auto " cellpadding="5px" border="2px" style="font-weight: bold; font-size: 25px; text-align: center; min-width: 100%">
+                <thead>
+                <tr style="background-color: #ddeeff">
+                    <th>نوع ال#{msg.lst}</th>
+                    <ui:repeat var="col" value="#{ourSidesCasualtiesController.cityList}">
+                        <th>#{col}</th>
+                    </ui:repeat>
+                    <th>المجموع</th>
+                </tr>
+                </thead>
+                <tbody>
+                <ui:repeat var="player" value="#{ourSidesCasualtiesController.casualtiesDataList}">
+                    <tr class="table-row">
+                        <td class="first-col">#{player}</td>
+                        <ui:repeat var="cityName" value="#{ourSidesCasualtiesController.cityList}">
+                            <td>#{ourSidesCasualtiesController.getOrgNames(cityName,player)}</td>
+                        </ui:repeat>
+                        <td></td>
+                    </tr>
+                </ui:repeat>
+                <tr class="table-row">
+                    <td class="first-col">المجموع</td>
+                    <ui:repeat var="col" value="#{ourSidesCasualtiesController.cityList}">
+                        <td></td>
+                    </ui:repeat>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+            <br/>
+            <div class="container row justify-content-between pt-2" style="text-align: center; position: fixed; bottom: 0; border-top: 1px #000 solid">
+                <div class="col-4" style="font-size: 18px !important; font-weight: bold; text-align: right">
+                    قسم البيانات  /  الأحصاء
+                </div>
+                <div class="col-4">
+                    <img src="#{resource['images/karbala-logo.svg']}" height="50"/>
+
+                </div>
+                <div class="col-4" style="font-size: 18px !important; font-weight: bold; text-align: left">
+                    تاريخ الإخراج/ <span id="dateTimeSpan"></span>
+                </div>
+                <div class="col-4" style="font-size: 18px !important; font-weight: bold; text-align: right">
+                    اسم المستخدم:  #{loginController.current_user.username}
+                </div>
+            </div>
+        </div>
+        <script>
+            const date = new Date();
+            const month = parseInt(date.getMonth()) + 1;
+            const localDate = date.getFullYear() + '/' + month + '/' + date.getDate();
+            const localTime = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+            const localDateTime = localTime  + ' - ' +  localDate;
+            document.getElementById('dateSpan').innerText = localDate;
+            document.getElementById('dateTimeSpan').innerText = localDateTime;
+        </script>
+    </ui:define>
+</ui:composition>

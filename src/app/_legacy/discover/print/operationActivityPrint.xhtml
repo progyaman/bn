@@ -1,0 +1,166 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/admin/discover/print/template2.xhtml">
+
+    <ui:define name="title">البيان - كشف</ui:define>
+
+    <ui:define name="content">
+        <div class="container mx-auto" style="padding: 1rem; font-family: 'Times New Roman' !important; direction: rtl; min-height: 1220px;">
+            <div class="row text-center border-bottom  align-items-center" style="border-bottom: 1px solid #000!important; margin-bottom: 1rem; padding-bottom: 1rem;">
+                <div class="col-4" style="font-size: 25px !important; font-weight: bold;">
+                    #{msg['hsd']} <br/>
+                    #{msg.mam} <br/>
+                    #{msg.mmam} <br/>
+                    #{msg.mtt}
+                </div>
+                <div class="col-4">
+                    <img src="#{resource['images/int-logo.svg']}" height="150"/>
+                </div>
+                <div class="col-4" style="font-size: 25px !important; font-weight: bold;">
+                    نظام البيان الالكتروني <br/>
+                    العدد: #{operationActivityController.counter.itsValue} <br/>
+                    التاريخ: <span id="dateSpan"></span> <br/>
+                    المنشئ: #{loginController.current_user.jihadNumber}
+                </div>
+            </div>
+            <p style="font-size: 28px !important; font-weight: bold; text-align: center">
+                <p:outputPanel  rendered="#{operationActivityController.missionName.name != null}" style="font-size: 28px !important; font-weight: bold; text-align: center">
+                    م/ #{operationActivityController.missionName.name}
+                </p:outputPanel>
+                <p:outputPanel style="display: #{operationActivityController.subject == true ? 'compact': 'none'};font-size: 28px !important; font-weight: bold; text-align: center">
+                ع/#{operationActivityController.reportName}<br/>
+                </p:outputPanel>
+
+                <p:outputPanel style="font-size: 28px !important; font-weight: bold; text-align: center">
+                    من تاريخ #{operationActivityController.dateRange.get(0)} الى #{operationActivityController.dateRange.get(1)}
+                </p:outputPanel>
+            </p>
+            <table class="mx-auto " cellpadding="5px" border="2px" style="font-weight: bold; font-size: 25px; text-align: center; min-width: 100%">
+                <thead>
+                <tr style="background-color: #ddeeff">
+                    <th style="display: #{operationActivityController.serial == true ? 'compact': 'none'}">التسلسل</th>
+                    <th style="display: #{operationActivityController.date == true ? 'compact': 'none'}">الوقت والتاريخ</th>
+                    <th style="display: #{operationActivityController.news == true ? 'compact': 'none'}">الخبر</th>
+                    <th style="display: #{operationActivityController.activity == true ? 'compact': 'none'}">نوع الحدث</th>
+                    <th style="display: #{operationActivityController.activityType == true ? 'compact': 'none'}">#{msg.tOrg}</th>
+                    <th style="display: #{operationActivityController.additionArms == true ? 'compact': 'none'}">#{msg.ad}</th>
+                    <th style="display: #{operationActivityController.department == true ? 'compact': 'none'}">الجهة المنفذة</th>
+                    <th style="display: #{operationActivityController.forceHolding == true ? 'compact': 'none'}">#{msg.forin}</th>
+                    <th style="display: #{operationActivityController.durationBoolean == true ? 'compact': 'none'}">مدة الحدث</th>
+                    <th style="display: #{operationActivityController.request_muId == true ? 'compact': 'none'}">جهة الطلب</th>
+                    <th style="display: #{operationActivityController.place == true ? 'compact': 'none'}">المكان</th>
+                    <th style="display: #{operationActivityController.resultPrint == true ? 'compact': 'none'}"  class="#{operationActivityController.result != true ? 'hidden-col' : ''}">النتائج</th>
+                </tr>
+                </thead>
+                <tbody>
+                <ui:repeat var="operation" value="#{operationActivityController.dataMap}">
+                    <tr class="table-row">
+                        <td style="font-size: 20px ; display: #{operationActivityController.serial == true ? 'compact': 'none'}">#{operationActivityController.dataMap.indexOf(operation)+1}</td>
+                        <td style="font-size: 20px ; display: #{operationActivityController.date == true ? 'compact': 'none'}" >
+                            <h:outputText  value="#{operation.date_time}  "/>
+                            <h:outputText
+                                    value="#{operation.time_news}">
+                            </h:outputText>
+                        </td>
+                        <td style="font-size: 20px;display: #{operationActivityController.news == true ? 'compact': 'none'}">#{operation.the_news}</td>
+                        <td style="display: #{operationActivityController.activity == true ? 'compact': 'none'}">#{operation.activityType.name}</td>
+                        <td width="120" style="font-size: 20px; display: #{operationActivityController.department == true ? 'compact': 'none'}">
+                            <ui:repeat value="#{operation.typeOrgNames}" var="tp" >
+                                <h:outputText value="#{tp.name}"/><br/>
+                            </ui:repeat>
+                        </td>
+                        <td style="display: #{operationActivityController.additionArms == true ? 'compact': 'none'}">#{operation.nameAdditionArms.concat(' / ')}#{operation.additionArms.typeArms.name}</td>
+                        <td width="120" style="font-size: 20px; display: #{operationActivityController.department == true ? 'compact': 'none'}">
+                            <ui:repeat value="#{operation.otherHands}" var="ot" >
+                                <h:outputText value="#{ot.name}"/><br/>
+                            </ui:repeat>
+                        </td>
+                        <td width="120" style="display: #{operationActivityController.forceHolding == true ? 'compact': 'none'}">
+                            <ui:repeat value="#{operation.holdingForces}" var="hf" >
+                                <h:outputText value="#{hf.name}"/><br/>
+                            </ui:repeat>
+                        </td>
+                        <td width="120" style="display: #{operationActivityController.durationBoolean == true ? 'compact': 'none'}">
+                            <h:outputText  value="#{operation.duration}  "/>
+
+                        </td>
+                        <td width="120" style="display: #{operationActivityController.request_muId == true ? 'compact': 'none'}">
+                            <h:outputText  value="#{operation.request_muId}  "/>
+
+                        </td>
+
+                        <td style="font-size: 20px;display: #{operationActivityController.place == true ? 'compact': 'none'}">
+                            #{operation.city.name.concat(' / ')}  #{operation.district.name.concat(' / ')}  #{operation.handDistrict.name.concat(' / ')} #{operation.neighbourhood}
+                        </td>
+                        <td style="display: #{operationActivityController.resultPrint == true ? 'compact': 'none'}"  class="#{operationActivityController.result != true ? 'hidden-col' : ''}" width="170">
+                            <p:outputPanel>
+                                <h:outputText rendered="#{operation.enemyCasualties.dead != 0}"  value="ا#{msg.kll}لى :  #{operation.enemyCasualties.dead} | "/>
+                                <h:outputText rendered="#{operation.enemyCasualties.arrested != 0}"  value="ال#{msg.dets} :  #{operation.enemyCasualties.arrested}"/>
+                            </p:outputPanel>
+                            <p:outputPanel>
+                                <h:outputText rendered="#{operation.enemyCasualties.drugs != 0}"  value="مخدرات :  #{operation.enemyCasualties.drugs} | "/>
+                                <h:outputText rendered="#{operation.enemyCasualties.fuel != 0}"  value="#{msg.ol} :  #{operation.enemyCasualties.fuel}  "></h:outputText>
+
+                            </p:outputPanel>
+                            <p:outputPanel>
+                                <h:outputText rendered="#{operation.enemyCasualties.heavyEquipment != 0}"  value="اسلحة ثقيلة :  #{operation.enemyCasualties.heavyEquipment} | "/>
+                                <h:outputText rendered="#{operation.enemyCasualties.document != 0}"  value="#{msg.fils} :  #{operation.enemyCasualties.document} "/>
+
+                            </p:outputPanel>
+                            <p:outputPanel>
+                                <h:outputText rendered="#{operation.enemyCasualties.moneyAmount != 0}"  value="مبالغ مالية :  #{operation.enemyCasualties.moneyAmount} | "/>
+                                <h:outputText rendered="#{operation.enemyCasualties.tunnel != 0}"  value="انفاق :  #{operation.enemyCasualties.tunnel}  "/>
+
+                            </p:outputPanel>
+                            <p:outputPanel>
+                                <h:outputText rendered="#{operation.enemyCasualties.gunDestroy != 0}"  value="اسلحة :  #{operation.enemyCasualties.gunDestroy} | "/>
+                                <h:outputText rendered="#{operation.enemyCasualties.technicalEquipmentDestroy != 0}"  value="معدات فنية :  #{operation.enemyCasualties.technicalEquipmentDestroy} "/>
+
+                            </p:outputPanel>
+                            <p:outputPanel>
+                                <h:outputText rendered="#{operation.enemyCasualties.vehiclesDestroy != 0}"  value="عجلة :  #{operation.enemyCasualties.vehiclesDestroy} | "/>
+                                <h:outputText rendered="#{operation.enemyCasualties.nestDestroy != 0}"  value="مضافة :  #{operation.enemyCasualties.nestDestroy}  "/>
+
+                            </p:outputPanel>
+                            <p:outputPanel>
+                                <h:outputText rendered="#{operation.enemyCasualties.wounded != 0}"  value="ال#{msg.cte}ى :  #{operation.enemyCasualties.wounded} | "/>
+                                <h:outputText rendered="#{operation.enemyCasualties.explosive != 0}"  value="#{msg.bom} :  #{operation.enemyCasualties.explosive}  "/>
+
+                            </p:outputPanel>
+
+                        </td>
+                    </tr>
+                </ui:repeat>
+                </tbody>
+            </table>
+            <br/>
+            <div class="container row justify-content-between pt-2" style="text-align: center; position: fixed; bottom: 0; border-top: 1px #000 solid">
+                <div class="col-4" style="font-size: 18px !important; font-weight: bold; text-align: right">
+                    قسم البيانات  /  الأحصاء
+                </div>
+                <div class="col-4">
+                    <img src="#{resource['images/karbala-logo.svg']}" height="50"/>
+
+                </div>
+                <div class="col-4" style="font-size: 18px !important; font-weight: bold; text-align: left">
+                    تاريخ الإخراج/ <span id="dateTimeSpan"></span>
+                </div>
+                <div class="col-4" style="font-size: 18px !important; font-weight: bold; text-align: right">
+                    اسم المستخدم:  #{loginController.current_user.username}
+                </div>
+            </div>
+        </div>
+        <script>
+            const date = new Date();
+            const month = parseInt(date.getMonth()) + 1;
+            const localDate = date.getFullYear() + '/' + month + '/' + date.getDate();
+            const localTime = date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+            const localDateTime = localTime  + ' - ' +  localDate;
+            document.getElementById('dateSpan').innerText = localDate;
+            document.getElementById('dateTimeSpan').innerText = localDateTime;
+        </script>
+    </ui:define>
+</ui:composition>

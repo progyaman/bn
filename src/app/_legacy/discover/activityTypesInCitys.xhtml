@@ -1,0 +1,401 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">كشف العمليات في المحافظات</ui:define>
+
+
+    <ui:define name="content">
+        <h:form id="form" rendered="#{request.isUserInRole('Kshofat View')}">
+            <p:growl id="growl" showDetail="true"/>
+            <p:outputPanel id="manage-product-content" style="overflow-scrolling: auto" class="ui-fluid">
+                <p:fieldset legend="كشف العمليات في المحافظات">
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-3 ">
+                            <p:outputLabel styleClass="p-text-bold" for="dates" value="تحديد بين تاريخين"/>
+                            <p:datePicker selectionMode="range"
+                                          id="dates"
+                                          monthNavigator="true" yearNavigator="true"
+                                          value="#{activityTypesInCitysController.dates}"
+                                          touchUI="true" showOnFocus="true" showButtonBar="true"
+                                          showOtherMonths="true"
+                                          required="true"
+                                          requiredMessage="بحث بين تاريخين"
+                                          onchange="PF('form').filter()"
+                                          placeholder="بحث بين تاريخين"/>
+                        </div>
+                        <div class="p-field p-col-3">
+                            <p:outputLabel styleClass="p-text-bold" value="نوع الحدث"
+                                           for="activityType"/>
+                            <p:selectCheckboxMenu id="activityType" label="يرجى الاختيار" filter="true"
+                                                  filterPlaceholder="البحث"
+                                                  filterMatchMode="contains"
+                                                  valueChangeListener="#{activityTypesInCitysController.getOrgNameByActivityType}"
+                                                  value="#{activityTypesInCitysController.activityTupeIDList}"
+                                                  dir="rtl"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار نوع الحدث"
+                                                  converter="omnifaces.SelectItemsConverter">
+
+                                <f:selectItems value="#{activityTypesInCitysController.activityTypeList}"
+                                               var="activityType" itemLabel="#{activityType.name}"
+                                               itemValue="#{activityType.id}"/>
+                                <p:ajax event="change" update="orgName selectSecTypes selectSecTypesLable monjaz monjazLable"
+                                        process="@this"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="orgName selectSecTypes selectSecTypesLable monjaz monjazLable"/>
+                            </p:selectCheckboxMenu>
+
+                        </div>
+                        <div class="p-field p-col-3">
+                            <p:outputLabel for="orgName" styleClass="p-text-bold" value="#{msg.orgs}"
+                            />
+                            <p:selectCheckboxMenu dir="rtl"
+                                                  id="orgName"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  updateLabel="true"
+                                                  showCheckbox="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار #{msg.orgs}"
+                                                  value="#{activityTypesInCitysController.orgNamesID}"
+                                                  valueChangeListener="#{activityTypesInCitysController.getTypeOrgNameByActivityTypeAndOrgName}"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="orgn"
+                                               value="#{activityTypesInCitysController.orgNamesObject}"
+                                               itemLabel="#{orgn.orgName.name}"
+                                               itemValue="#{orgn.orgName.id}"/>
+                                <p:ajax event="change" update="typeOrgName"
+                                        process="@this"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="typeOrgName"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-3">
+                            <p:outputLabel styleClass="p-text-bold" value="#{msg.tOrg}"
+                                           for="typeOrgName"/>
+                            <p:selectCheckboxMenu id="typeOrgName" required="true" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  updateLabel="true"
+                                                  showCheckbox="true"
+                                                  value="#{activityTypesInCitysController.orgActivityTypeId}"
+                                                  requiredMessage="يرجى اختيار #{msg.tOrg}"
+                                                  converter="omnifaces.SelectItemsConverter">
+
+                                <f:selectItems var="typeOrg"
+                                               value="#{activityTypesInCitysController.orgActivityTypeSelected}"
+                                               itemLabel="#{typeOrg.name}"
+                                               itemValue="#{typeOrg.id}"/>
+                                <p:ajax event="change"
+                                        process="@this" />
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-3">
+                            <p:outputLabel styleClass="p-text-bold" value="المهمة"
+                            />
+                            <p:selectOneMenu label="  المهمة" filter="true"
+                                             filterMatchMode="contains"
+                                             filterPlaceholder="البحث"
+                                             autoWidth="true"
+                                             dir="rtl"
+                                             value="#{activityTypesInCitysController.idMission}"
+                                             converter="omnifaces.SelectItemsIndexConverter">
+                                <f:selectItem itemLabel="يرجى الاختيار" noSelectionOption="true"/>
+                                <f:selectItems value="#{activityTypesInCitysController.missionNames}"
+                                               var="missionName" itemLabel="#{missionName.name}"
+                                               itemValue="#{missionName.id}"/>
+
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectOneMenu>
+                        </div>
+
+                        <div class="p-field p-col-12 p-xl-3 p-lg-3 p-md-12">
+                            <p:outputLabel styleClass="p-text-bold" value="اسم ال#{msg.ad2} " for="arms2"/>
+                            <p:selectCheckboxMenu id="arms2" label="يرجى الاختيار"
+                                             filter="true"
+                                             filterPlaceholder="البحث" filterMatchMode="contains"
+                                             value="#{activityTypesInCitysController.nameAdditionArms}"
+                                                  valueChangeListener="#{activityTypesInCitysController.getTypeAddtionByName}"
+                                             dir="rtl" required="true"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                             requiredMessage="يرجى الإختيار"
+                                             converter="omnifaces.SelectItemsConverter">
+
+                                <f:selectItem itemLabel="ميداني" itemValue="ميداني"
+                                />
+                                <f:selectItem itemLabel="علني" itemValue="علني"
+                                />
+                                <f:selectItem itemLabel="فني" itemValue="فني"
+                                />
+                                <f:selectItem itemLabel="رسمي" itemValue="رسمي"
+                                /> <f:selectItem itemLabel="مصدر بشري" itemValue="مصدر بشري"
+                            /> <f:selectItem itemLabel="عكسي" itemValue="عكسي"
+                            />
+                                <p:ajax event="change" update="tra3"/>
+                                <p:ajax event="change" update="tra3Text"/>
+                                <p:ajax event="change" update="tra4"/>
+                                <p:ajax event="change" update="tra4Text"/>
+                                <p:ajax event="change" update="arms2"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="tra3"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="tra3Text"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="arms2"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="tra4"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="tra4Text"/>
+
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-12 p-xl-3 p-lg-3 p-md-12">
+                            <p:outputLabel id="tra3Text" styleClass="p-text-bold" value="نوع ال#{msg.ad2}" for="tra3"/>
+                            <p:selectCheckboxMenu
+                                    disabled="#{!activityTypesInCitysController.nameAdditionArms.contains('فني') and !activityTypesInCitysController.nameAdditionArms.contains('مصدر بشري')}"
+                                    required="#{activityTypesInCitysController.armsCheck}"
+                                    id="tra3" label="يرجى الاختيار" filter="true"
+                                    filterPlaceholder="البحث"
+                                    filterMatchMode="contains"
+                                    multiple="true"
+                                    dynamic="true"
+                                    style="overflow-y: scroll; max-height: 8rem;"
+                                    requiredMessage="يرجى اختيار #{msg.ad}"
+                                    value="#{activityTypesInCitysController.typeArmsListId}"
+                                    valueChangeListener="#{activityTypesInCitysController.getAdditionArmsByTypeArms}"
+                                    dir="rtl"
+                                    converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems value="#{activityTypesInCitysController.typeArms}"
+                                               var="arm"
+                                               itemLabel="#{arm.name}"
+                                               itemValue="#{arm.id}"/>
+                                <p:ajax event="change" update="tra4"/>
+                                <p:ajax event="change" update="tra4Text"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="tra4"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="tra4Text"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-12 p-xl-3 p-lg-3 p-md-12">
+                            <p:outputLabel id="tra4Text" styleClass="p-text-bold" value="رمز ال#{msg.ad2}" for="tra4"/>
+                            <p:selectCheckboxMenu
+                                    disabled="#{activityTypesInCitysController.typeArmsListId.size() == 0}"
+                                    required="#{activityTypesInCitysController.additionArmsCheck}"
+                                    id="tra4" label="يرجى الاختيار" filter="true"
+                                    filterPlaceholder="البحث"
+                                    filterMatchMode="contains"
+                                    multiple="true"
+                                    dynamic="true"
+                                    style="overflow-y: scroll; max-height: 8rem;"
+                                    requiredMessage="يرجى اختيار #{msg.ad}"
+                                    value="#{activityTypesInCitysController.additionArmsId}"
+                                    dir="rtl"
+                                    converter="omnifaces.SelectItemsIndexConverter"> <f:selectItem
+                                    itemLabel="يرجى الأختيار" noSelectionOption="true" itemValue="#{null}"/>
+                                <f:selectItems value="#{activityTypesInCitysController.additionArms}"
+                                               var="arm1"
+                                               itemLabel="#{arm1.symbolOrName}"
+                                               itemValue="#{arm1.id}" />
+
+                                <p:ajax event="change"
+                                        process="@this"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" />
+                            </p:selectCheckboxMenu>
+                        </div>
+
+
+                    </div>
+
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-4">
+                            <p:outputLabel id="selectSecTypesLable" for="selectSecTypes" styleClass="p-text-bold" value="#{msg.hsdAndForce}"/>
+                            <p:selectCheckboxMenu id="selectSecTypes" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="#{activityTypesInCitysController.requiredInput}"
+                                                  disabled="#{activityTypesInCitysController.disableInput}"
+                                                  requiredMessage=" يرجى اختيار #{msg.hsdAndForce}"
+                                                  value="#{activityTypesInCitysController.idOtherHands }"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="otherHands"
+                                               value="#{activityTypesInCitysController.otherHands}"
+                                               itemLabel="#{otherHands.name}"
+                                               itemValue="#{otherHands.id}"/>
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-3 ">
+                            <p:outputLabel id="monjazLable" for="monjaz" styleClass="p-text-bold" value="التبعية المنجزة"/>
+                            <p:selectCheckboxMenu id="monjaz" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  disabled="#{activityTypesInCitysController.disableMonjazInput}"
+                                                  required="#{activityTypesInCitysController.requiredMonjazInput}"
+                                                  requiredMessage=" يرجى اختيار التبعية المنجزة"
+                                                  value="#{activityTypesInCitysController.monjaz }">
+
+                                <f:selectItem itemLabel="#{msg.hashd}" itemValue="#{msg.hashd}"/>
+                                <f:selectItem itemLabel="القوات الأمنية" itemValue="القوات الأمنية"/>
+                                <f:selectItem itemLabel="مشترك" itemValue="مشترك"/>
+                                <f:selectItem itemLabel="المدنيين" itemValue="المدنيين"/>
+                                <f:selectItem itemLabel="البنى التحتية" itemValue="البنى التحتية"/>
+                                <p:ajax event="change" />
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-3 ">
+                            <p:outputLabel for="citiesID" styleClass="p-text-bold" value="المحافظات"/>
+                            <p:selectCheckboxMenu id="citiesID" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار المحافظات"
+                                                  value="#{activityTypesInCitysController.citiesID }"
+                                                  valueChangeListener="#{activityTypesInCitysController.findDistrictByCity}"
+
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="city"
+                                               value="#{activityTypesInCitysController.cities}"
+                                               itemLabel="#{city.name}"
+                                               itemValue="#{city.id}"/>
+                                <p:ajax event="change"
+                                        process="@this" update="district"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="district"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-2">
+                            <p:outputLabel for="district" styleClass="p-text-bold" value="القضاء"/>
+                            <p:selectCheckboxMenu id="district" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار الأقضية"
+                                                  value="#{activityTypesInCitysController.districtIdList }"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+                                <f:selectItems var="district"
+                                               value="#{activityTypesInCitysController.districts}"
+                                               itemLabel="#{district.name}"
+                                               itemValue="#{district.id}"/>
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-4 ">
+                            <p:outputLabel for="reportName" styleClass="p-text-bold" value="عنوان الكشف"/>
+                            <p:inputText value="#{activityTypesInCitysController.reportName}"
+                                         id="reportName"
+                                         required="true" requiredMessage="يرجى إدخال عنوان الكشف"/>
+                        </div>
+
+                        <div class="p-col-4 p-jc-center p-ac-center">
+                            <p:commandButton id="filterBtn" value="بحث" icon="pi pi-check"
+                                             styleClass="p-mt-5 ui-button-success"
+                                             actionListener="#{activityTypesInCitysController.onFilter()}"
+                                             style="width: 90px;"
+                                             update="form"
+                                             process="@form,dates"
+                            />
+                            <p:commandButton value="اعادة ضبط الكشف" icon="pi pi-refresh" styleClass="p-mt-5"
+                                             actionListener="#{activityTypesInCitysController.init()}"
+                                             style="width: 160px; margin-right: 1rem"
+                                             update="form"
+                            />
+                            <p:commandButton rendered="#{activityTypesInCitysController.cityList.size() != 0}"
+                                             value="طباعة" icon="pi pi-print"
+                                             action="#{activityTypesInCitysController.incrementCounter()}"
+                                             process="@this"
+                                             style="width: 120px ; margin-right: 1rem"
+                                             onclick="printDoc('activityTypesInCitysPrint')"/>
+
+                        </div>
+
+                    </div>
+                </p:fieldset>
+                <p:blockUI block="form" trigger="filterBtn">
+                    <i class="pi pi-spin pi-spinner" style="font-size: 6rem"></i>
+                </p:blockUI>
+            </p:outputPanel>
+
+            <!--      =========================================================================  the table  =================== -->
+
+            <p:dataTable emptyMessage="لاتوجد نتائج" id="tblPlayers" var="player"
+                         value="#{activityTypesInCitysController.orgNamesList}"
+                         style="margin-top:40px;text-align: center">
+                <f:facet name="header">
+                    <div class="p-grid p-jc-between">
+                        <div class="p-col-4">
+                            <h:outputText value="كشف نوع الحدث في المحافظات" style="font-size: x-large;"/>
+                        </div>
+                    </div>
+                </f:facet>
+                <p:columnGroup type="header">
+                    <p:row>
+                        <p:column style="text-align: center"
+                                  colspan="#{activityTypesInCitysController.columnCount() + 1}"
+                                  headerText="المحافظات"/>
+                    </p:row>
+                    <p:row>
+                        <p:column rendered="#{activityTypesInCitysController.cityList.size() != 0}"
+                                  style="text-align: center"
+                                  headerText="نوع الحدث"/>
+                        <p:columns var="col" value="#{activityTypesInCitysController.cityList}" headerText="#{col}"
+                                   style="text-align: center"/>
+                    </p:row>
+                </p:columnGroup>
+                <p:column>
+                    <h:outputLabel value="#{player}" style="text-align: center"/>
+                </p:column>
+                <p:columns var="cityName" value="#{activityTypesInCitysController.cityList}" style="text-align: center">
+                    <h:outputLabel value="#{activityTypesInCitysController.getOrgNames(cityName,player)}"/>
+                </p:columns>
+            </p:dataTable>
+        </h:form>
+        <!--        IN PRINT DOC METHOD, PASS DOCUMENT'S NAME TO PRINT ITS CONTENT-->
+        <!--        <p:commandButton value="طباعة" icon="pi pi-print"-->
+        <!--                         style="width: 150px ; margin-left: 15px"-->
+        <!--                         onclick="printDoc('ActivitiesByOrgCity')" />-->
+        <!--        ADD THIS ELEMENT TO EACH PAGE HAS A PRINT BUTTON-->
+        <!--        <iframe width="100%" height="1000px" id="print-page" style="display:none;"></iframe>-->
+
+        <!--        IN PRINT DOC METHOD, PASS DOCUMENT'S NAME TO PRINT ITS CONTENT-->
+        <!--        ADD THIS ELEMENT TO EACH PAGE HAS A PRINT BUTTON-->
+        <iframe width="100%" height="1000px" id="print-page" style="display:none;"></iframe>
+    </ui:define>
+
+</ui:composition>
+

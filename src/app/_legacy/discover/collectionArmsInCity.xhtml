@@ -1,0 +1,268 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">كشف مصادر  نوع ال#{msg.ad2}  وانتشاره بالنسبة للمحافظات</ui:define>
+    <ui:define name="content">
+        <h:form id="form" rendered="#{request.isUserInRole('Kshofat View')}">
+            <p:growl id="growl" showDetail="true"/>
+            <p:outputPanel id="manage-product-content" style="overflow-scrolling: auto" class="ui-fluid">
+                <p:fieldset legend=" كشف مصادر  نوع ال#{msg.ad2}  وانتشاره بالنسبة للمحافظات ">
+
+
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-4 ">
+                            <p:outputLabel styleClass="p-text-bold" value="تحديد بين تاريخين" for="dates"/>
+                            <p:datePicker selectionMode="range"
+                                          id="dates"
+                                          monthNavigator="true" yearNavigator="true"
+                                          value="#{collectionArmsInCityController.dates}"
+                                          touchUI="true" showOnFocus="true" showButtonBar="true"
+                                          showOtherMonths="true"
+                                          required="true"
+                                          requiredMessage=" بحث بين تاريخين"
+                                          onchange="PF('form').filter()"
+                                          placeholder="بحث بين تاريخين"/>
+                        </div>
+                        <div class="p-field p-col-4 ">
+                            <p:outputLabel styleClass="p-text-bold" value="#{msg.orgs}"
+                            />
+                            <p:selectCheckboxMenu dir="rtl"
+                                                  id="orgName"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  updateLabel="true"
+                                                  showCheckbox="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار #{msg.orgs}"
+                                                  value="#{collectionArmsInCityController.orgNamesID}"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="orgname"
+                                               value="#{collectionArmsInCityController.orgNamesObject}"
+                                               itemLabel="#{orgname.name}"
+                                               itemValue="#{orgname.id}"/>
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-4">
+                            <p:outputLabel styleClass="p-text-bold" value="المهمة"
+                            />
+                            <p:selectOneMenu label="  المهمة" filter="true"
+                                             filterMatchMode="contains"
+                                             filterPlaceholder="البحث"
+                                             autoWidth="true"
+                                             dir="rtl"
+                                             value="#{collectionArmsInCityController.idMission}"
+                                             converter="omnifaces.SelectItemsIndexConverter">
+                                <f:selectItem itemLabel="يرجى الاختيار" noSelectionOption="true"/>
+                                <f:selectItems value="#{collectionArmsInCityController.missionNames}"
+                                               var="missionName" itemLabel="#{missionName.name}"
+                                               itemValue="#{missionName.id}"/>
+
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectOneMenu>
+                        </div>
+                    </div>
+
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-xl-3 p-lg-3 p-md-12">
+                            <p:outputLabel styleClass="p-text-bold" value="اسم ال#{msg.ad2} " for="arms2"/>
+                            <p:selectCheckboxMenu id="arms2" label="يرجى الاختيار"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  value="#{collectionArmsInCityController.nameAdditionArms}"
+                                                  dir="rtl" required="true"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  requiredMessage="يرجى الإختيار"
+                                                  converter="omnifaces.SelectItemsConverter">
+
+                                <f:selectItem itemLabel="فني" itemValue="فني"
+                                />
+                               <f:selectItem itemLabel="مصدر بشري" itemValue="مصدر بشري"
+                            />
+                                <p:ajax event="change" update="tra3"/>
+                                <p:ajax event="change" update="tra3Text"/>
+
+                                <p:ajax event="change" update="arms2"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="tra3"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="tra3Text"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="arms2"/>
+
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-12 p-xl-3 p-lg-3 p-md-12">
+                            <p:outputLabel id="tra3Text" styleClass="p-text-bold" value="نوع ال#{msg.ad2}" for="tra3"/>
+                            <p:selectCheckboxMenu
+                                    required="true"
+                                    id="tra3" label="يرجى الاختيار" filter="true"
+                                    filterPlaceholder="البحث"
+                                    filterMatchMode="contains"
+                                    multiple="true"
+                                    dynamic="true"
+                                    requiredMessage="يرجى اختيار #{msg.ad}"
+                                    value="#{collectionArmsInCityController.typeArmsListId}"
+                                    dir="rtl"
+                                    converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems value="#{collectionArmsInCityController.getTypeArmsListByName()}"
+                                               var="arm"
+                                               itemLabel="#{arm.name}"
+                                               itemValue="#{arm.id}"/>
+
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-3 ">
+                            <p:outputLabel for="citiesID" styleClass="p-text-bold" value="المحافظات"/>
+                            <p:selectCheckboxMenu id="citiesID" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار المحافظات"
+                                                  value="#{collectionArmsInCityController.citiesID }"
+                                                  valueChangeListener="#{collectionArmsInCityController.findDistrictByCity}"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="city"
+                                               value="#{collectionArmsInCityController.cities}"
+                                               itemLabel="#{city.name}"
+                                               itemValue="#{city.id}"/>
+                                <p:ajax event="change"
+                                        process="@this" update="district"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="district"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-3 ">
+                            <p:outputLabel for="district" styleClass="p-text-bold" value="القضاء"/>
+                            <p:selectCheckboxMenu id="district" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار الأقضية"
+                                                  value="#{collectionArmsInCityController.districtIdList }"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="district"
+                                               value="#{collectionArmsInCityController.districts}"
+                                               itemLabel="#{district.name}"
+                                               itemValue="#{district.id}"/>
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-3 ">
+                            <p:outputLabel for="requestmuId1"  styleClass="p-text-bold" value="جهة الطلب" />
+
+                            <p:autoComplete completeMethod="#{collectionArmsInCityController.fetchManagementUnit}"
+                                            placeholder="بحث... يبدء من سلسلة 3"
+                                            dynamic="true"
+                                            var="mc1" itemValue="#{mc1}"
+                                            scrollHeight="250"
+                                            itemLabel="#{mc1 != null ? collectionArmsInCityController.splitManagementUint(mc1) : mc1}"
+                                            emptyMessage="لا توجد نتائج بحث"
+                                            minQueryLength="3"
+                                            multiple="true"
+                                            dir="rtl"
+                                            value="#{collectionArmsInCityController.request_muId}"
+                                            id="requestmuId1" style="height: 40px" forceSelection="true"
+                                            active="true"
+                                            converter="managemntUnitConverter">
+                                <p:ajax event="change"  process="@this" />
+                            </p:autoComplete>
+                        </div>
+
+                        <div class="p-field p-col-3 ">
+                            <p:outputLabel for="reportName" styleClass="p-text-bold" value="عنوان الكشف"/>
+                            <p:inputText value="#{collectionArmsInCityController.reportName}"
+                                         id="reportName"
+                                         required="true" requiredMessage="يرجى إدخال عنوان الكشف"/>
+                        </div>
+
+                        <div class="p-col-4 p-jc-center p-ac-center ">
+                            <p:commandButton id="filterBtn" value="بحث" icon="pi pi-check"
+                                             styleClass="p-mt-5 ui-button-success"
+                                             actionListener="#{collectionArmsInCityController.onFilter()}"
+                                             style="width: 90px;"
+                                             update="form"
+                                             process="@form,dates"
+                            />
+                            <p:commandButton value="اعادة ضبط الكشف" icon="pi pi-refresh" styleClass="p-mt-5"
+                                             actionListener="#{collectionArmsInCityController.init}"
+                                             style="width: 160px; margin-right: 1rem"
+                                             update="form"
+                            />
+                            <p:commandButton rendered="#{collectionArmsInCityController.cityList.size() != 0}"
+                                             value="طباعة" icon="pi pi-print"
+                                             action="#{collectionArmsInCityController.incrementCounter()}"
+                                             process="@form"
+                                             style="width: 120px ; margin-right: 1rem"
+                                             onclick="printDoc('collectionArmsInCityPrint')"/>
+
+                        </div>
+                    </div>
+                </p:fieldset>
+            </p:outputPanel>
+
+            <!--      =========================================================================  the table  =================== -->
+
+            <p:dataTable emptyMessage="لاتوجد نتائج" id="tblPlayers" var="player"
+                         value="#{collectionArmsInCityController.orgNamesList}"
+                         style="margin-top:40px;text-align: center">
+                <f:facet name="header">
+                    <h:outputText value=" كشف مصادر  نوع ال#{msg.ad2}  وانتشاره بالنسبة للمحافظات" style="font-size: x-large;"/>
+                </f:facet>
+                <p:columnGroup type="header">
+
+                    <p:row>
+                        <p:column rendered="#{collectionArmsInCityController.cityList.size() != 0}"
+                                  style="text-align: center"
+                                  headerText="نوع ال#{msg.ad2}"/>
+                        <p:column headerText="اذرع الأنتشار" style="text-align: center"/>
+                        <p:columns var="col" value="#{collectionArmsInCityController.cityList}" headerText="#{col}"
+                                   style="text-align: center"/>
+                    </p:row>
+                </p:columnGroup>
+                <p:column>
+                    <h:outputLabel value="#{player.split(',')[0]}" style="text-align: center"/>
+                </p:column>
+                <p:column>
+                    <h:outputLabel  value="#{player.split(',')[1] == 'null' ? 0 :player.split(',')[1] }"
+                                   style="text-align:  center; font-weight: bold ; font-size: 17px"/>
+                </p:column>
+                <p:columns var="cityName" value="#{collectionArmsInCityController.cityList}" style="text-align: center">
+                    <h:outputLabel style="font-weight: bold ; font-size: 17px" value="#{collectionArmsInCityController.getOrgNames(cityName,player).split(',')[0]}"/>
+                    <h:outputLabel rendered="#{collectionArmsInCityController.getOrgNames(cityName,player).split(',')[1] != null}" style="font-size: 12px " value=" (#{collectionArmsInCityController.getOrgNames(cityName,player).split(',')[1]} س)"/>
+                </p:columns>
+            </p:dataTable>
+        </h:form>
+
+        <!--        IN PRINT DOC METHOD, PASS DOCUMENT'S NAME TO PRINT ITS CONTENT-->
+        <!--        ADD THIS ELEMENT TO EACH PAGE HAS A PRINT BUTTON-->
+        <iframe width="100%" height="1000px" id="print-page" style="display:none;"></iframe>
+
+    </ui:define>
+
+</ui:composition>
+

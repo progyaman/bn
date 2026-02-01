@@ -1,0 +1,290 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">كشف #{msg.lst} العدو</ui:define>
+
+
+    <ui:define name="content">
+
+        <h:form id="form" rendered="#{request.isUserInRole('Kshofat View')}">
+            <p:growl id="growl" showDetail="true"/>
+            <p:outputPanel id="manage-product-content">
+                <p:fieldset legend="كشف #{msg.lst} العدو ">
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-12 p-md-4">
+                            <p:outputLabel styleClass="p-text-bold" value="تحديد بين تاريخين" for="date_time"/>
+                            <p:datePicker id="date_time" selectionMode="range"
+                                          placeholder="بحث بين تاريخين"
+                                          monthNavigator="true" yearNavigator="true"
+                                          touchUI="true" showOnFocus="true" showButtonBar="true"
+                                          showOtherMonths="true"
+                                          required="true"
+                                          requiredMessage=" بحث بين تاريخين"
+                                          value="#{searchesAndDestroyOperationController.dateRange}"
+                                          readonlyInput="true"/>
+                        </div>
+
+                        <div class="p-field p-col-4 ">
+                            <p:outputLabel for="citiesID" styleClass="p-text-bold" value="المحافظات"/>
+                            <p:selectCheckboxMenu id="citiesID" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار المحافظات"
+                                                  value="#{searchesAndDestroyOperationController.cityIdList }"
+                                                  valueChangeListener="#{searchesAndDestroyOperationController.findDistrictByCity}"
+
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="city"
+                                               value="#{searchesAndDestroyOperationController.cities}"
+                                               itemLabel="#{city.name}"
+                                               itemValue="#{city.id}"/>
+                                <p:ajax event="change"
+                                        process="@this" update="district"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="district"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-4 ">
+                            <p:outputLabel for="district" styleClass="p-text-bold" value="القضاء"/>
+                            <p:selectCheckboxMenu id="district" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار الأقضية"
+                                                  value="#{searchesAndDestroyOperationController.districtIdList }"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="district"
+                                               value="#{searchesAndDestroyOperationController.districts}"
+                                               itemLabel="#{district.name}"
+                                               itemValue="#{district.id}"/>
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-12 p-md-3">
+                            <p:outputLabel styleClass="p-text-bold" value="#{msg.orgs}" for="org"/>
+
+                            <p:selectCheckboxMenu id="org" label="يرجى الاختيار" filter="true"
+                                                  filterMatchMode="contains"
+                                                  filterPlaceholder="البحث"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  value="#{searchesAndDestroyOperationController.orgIdsList}"
+                                                  valueChangeListener="#{searchesAndDestroyOperationController.getTypeOrgNameByActivityTypeAndOrgName}"
+                                                  dir="rtl"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار #{msg.org}"
+                                                  converter="omnifaces.SelectItemsConverter">
+
+                                <f:selectItems value="#{searchesAndDestroyOperationController.organizationList}"
+                                               var="org1" itemLabel="#{org1.orgName.name}"
+                                               itemValue="#{org1.orgName.id}"/>
+                                <p:ajax event="change" update="typeOrgName"
+                                        process="@this"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="typeOrgName"/>
+
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-4">
+                            <p:outputLabel styleClass="p-text-bold" value="#{msg.tOrg} "
+                                           for="typeOrgName"/>
+                            <p:selectCheckboxMenu id="typeOrgName" required="true" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  updateLabel="true"
+                                                  showCheckbox="true"
+                                                  value="#{searchesAndDestroyOperationController.orgActivityTypeId}"
+                                                  requiredMessage="يرجى اختيار #{msg.tOrg} "
+                                                  converter="omnifaces.SelectItemsConverter">
+
+                                <f:selectItems var="typeOrg"
+                                               value="#{searchesAndDestroyOperationController.orgActivityTypeSelected}"
+                                               itemLabel="#{typeOrg.name}"
+                                               itemValue="#{typeOrg.id}"/>
+                                <p:ajax event="change"
+                                        process="@this" />
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-12 p-md-3">
+                            <p:outputLabel styleClass="p-text-bold" value="#{msg.hsdAndForce}"
+                                           for="selectSecTypes"/>
+                            <p:selectCheckboxMenu id="selectSecTypes" dir="rtl"
+                                                  filter="true"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  updateLabel="true"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار #{msg.hsdAndForce}"
+                                                  value="#{searchesAndDestroyOperationController.otherSideId}"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="orgname"
+                                               value="#{searchesAndDestroyOperationController.otherHandList}"
+                                               itemLabel="#{orgname.name}"
+                                               itemValue="#{orgname.id}"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-12 p-md-2">
+                            <p:outputLabel styleClass="p-text-bold" value="اسم المهمة او العملية"
+                                           for="missionName"/>
+                            <p:selectOneMenu autoWidth="false" id="missionName" label="يرجى الاختيار"
+                                             filter="true"
+                                             filterMatchMode="contains"
+                                             filterPlaceholder="البحث"
+
+                                             value="#{searchesAndDestroyOperationController.missionId}"
+                                             dir="rtl"
+                                             converter="omnifaces.SelectItemsIndexConverter">
+                                <f:selectItem itemLabel="يرجى الاختيار" noSelectionOption="true"/>
+                                <f:selectItems value="#{searchesAndDestroyOperationController.missionNameList}"
+                                               var="nameMission" itemLabel="#{nameMission.name}"
+                                               itemValue="#{nameMission.id}"/>
+                            </p:selectOneMenu>
+                        </div>
+
+
+<!--                        <div class="p-field p-col-3 ">-->
+<!--                            <p:outputLabel for="citiesID" styleClass="p-text-bold" value="التبعية المنجزة"/>-->
+<!--                            <p:selectCheckboxMenu id="monjaz" dir="rtl"-->
+<!--                                                  filter="true"-->
+<!--                                                  filterPlaceholder="البحث" filterMatchMode="contains"-->
+<!--                                                  multiple="true"-->
+<!--                                                  dynamic="true"-->
+<!--                                                  style="overflow-y: scroll; max-height: 8rem;"-->
+<!--                                                  required="true"-->
+<!--                                                  requiredMessage=" يرجى اختيار التبعية المنجزة"-->
+<!--                                                  value="#{searchesAndDestroyOperationController.monjaz }">-->
+
+<!--                                <f:selectItem itemLabel="#{msg.hashd}" itemValue="#{msg.hashd}"/>-->
+<!--                                <f:selectItem itemLabel="القوات الأمنية" itemValue="القوات الأمنية"/>-->
+<!--                                <f:selectItem itemLabel="مشترك" itemValue="مشترك"/>-->
+<!--                                <f:selectItem itemLabel="المدنيين" itemValue="المدنيين"/>-->
+<!--                                <f:selectItem itemLabel="البنى التحتية" itemValue="البنى التحتية"/>-->
+
+<!--                                <p:ajax event="change"-->
+<!--                                        process="@this"/>-->
+<!--                            </p:selectCheckboxMenu>-->
+<!--                        </div>-->
+
+                       <div class="p-field p-col-12 p-md-4">
+                            <p:outputLabel styleClass="p-text-bold" value="نوع ال#{msg.lst}" for="enemyLosses"/>
+                            <p:selectCheckboxMenu id="enemyLosses" label="يرجى الاختيار" filter="true"
+                                                  filterMatchMode="contains"
+                                                  filterPlaceholder="البحث"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  required="true"
+                                                  requiredMessage="يرجئ ادخال انواع ال#{msg.lst}"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  value="#{searchesAndDestroyOperationController.enemySelectedList}"
+                                                  dir="rtl"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems value="#{searchesAndDestroyOperationController.enemyMap.keySet()}"
+                                               var="enemyLosses"
+                                               itemLabel="#{searchesAndDestroyOperationController.enemyMap.get(enemyLosses)}"
+                                               itemValue="#{enemyLosses}"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-4 ">
+                            <p:outputLabel for="reportName" styleClass="p-text-bold" value="عنوان الكشف"/>
+                            <p:inputText value="#{searchesAndDestroyOperationController.reportName}"
+                                         id="reportName"
+                                         required="true" requiredMessage="يرجى إدخال عنوان الكشف"/>
+                        </div>
+
+                        <div class=" p-col-12 p-md-12 p-jc-center p-ac-center ">
+
+                            <p:commandButton id="filterBtn" value="بحث" icon="pi pi-check"
+                                             styleClass="p-mt-5 ui-button-success"
+                                             actionListener="#{searchesAndDestroyOperationController.onFilter}"
+                                             style="width: 90px;"
+                                             update="form"
+                                             process="@form,date_time"
+                            />
+                            <p:commandButton value="اعادة ضبط الكشف" icon="pi pi-refresh" styleClass="p-mt-5"
+                                             actionListener="#{searchesAndDestroyOperationController.init}"
+                                             style="width: 160px; margin-right: 1rem"
+                                             update="form"
+                            />
+                            <p:commandButton rendered="#{searchesAndDestroyOperationController.cityList.size() != 0}"
+                                             value="طباعة" icon="pi pi-print"
+                                             action="#{searchesAndDestroyOperationController.incrementCounter()}"
+                                             process="@this"
+                                             style="width: 120px ; margin-right: 1rem"
+                                             onclick="printDoc('enemyCasualitiesPrint')"/>
+
+
+                        </div>
+                    </div>
+                </p:fieldset>
+                <p:blockUI block="form" trigger="filterBtn">
+                    <i class="pi pi-spin pi-spinner" style="font-size: 6rem"></i>
+                </p:blockUI>
+            </p:outputPanel>
+
+            <p:dataTable emptyMessage="لاتوجد نتائج" id="tblPlayers" var="player"
+                         value="#{searchesAndDestroyOperationController.orgNamesList}"
+                         style="margin-top:40px;text-align: center">
+                <f:facet name="header">
+                    <div class="p-col-4">
+                        <h:outputText value="#{msg.lst} العدو في المحافظات" style="font-size: x-large;"/>
+                    </div>
+                </f:facet>
+                <p:columnGroup type="header">
+                    <p:row>
+                        <p:column style="text-align: center"
+                                  colspan="#{searchesAndDestroyOperationController.columnCount() + 1}"
+                                  headerText="المحافظات"/>
+                    </p:row>
+                    <p:row>
+                        <p:column rendered="#{searchesAndDestroyOperationController.cityList.size() != 0}"
+                                  style="text-align: center"
+                                  headerText="ال#{msg.lst}"/>
+                        <p:columns var="col" value="#{searchesAndDestroyOperationController.cityList}"
+                                   headerText="#{col}"
+                                   style="text-align: center"/>
+                    </p:row>
+                </p:columnGroup>
+                <p:column>
+                    <h:outputLabel value="#{player}" style="text-align: center"/>
+                </p:column>
+                <p:columns var="cityName" value="#{searchesAndDestroyOperationController.cityList}"
+                           style="text-align: center">
+                    <h:outputLabel value="#{searchesAndDestroyOperationController.getOrgNames(cityName,player)}"/>
+                </p:columns>
+            </p:dataTable>
+
+
+        </h:form>
+
+        <!--        IN PRINT DOC METHOD, PASS DOCUMENT'S NAME TO PRINT ITS CONTENT-->
+        <!--        ADD THIS ELEMENT TO EACH PAGE HAS A PRINT BUTTON-->
+        <iframe width="100%" height="1000px" id="print-page" style="display:none;"></iframe>
+
+    </ui:define>
+
+</ui:composition>
+

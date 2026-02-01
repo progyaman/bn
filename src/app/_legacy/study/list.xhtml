@@ -1,0 +1,198 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">الدراسات</ui:define>
+
+    <ui:define name="viewname">
+<!--        <li><p:link outcome="/dashboard">الصفحة الرئيسية</p:link></li>-->
+        <li><i class="pi pi-chevron-right"/></li>
+        <li><p:link outcome="/admin/study/list">الدراسات</p:link></li>
+    </ui:define>
+    <ui:define name="content">
+        <h:form  id="form"  rendered="#{request.isUserInRole('Study View')}">
+            <div class="p-grid crud">
+                <div class="p-col-12">
+                    <h:panelGroup>
+                    <div class="card">
+                        <h2>الدراسات</h2>
+
+                        <p:divider/>
+                        <p:growl id="messages" showDetail="true"/>
+
+                        <p:dataTable stripedRows="true"  dir="rtl" id="dt-study" widgetVar="dtstudy"
+                                     var="study"
+                                     value="#{studyListController.list}" reflow="true"
+                                     selection="#{studyListController.hasSelected}"
+                                     rowKey="#{study.id}"
+                                     size="small"
+                                     selectionPageOnly="false"
+                                     emptyMessage="لا توجد دراسات"
+                                     paginator="true" rows="10" rowSelectMode="add"
+                                     paginatorPosition="bottom">
+                            <f:facet name="header">
+                                <div class="products-table-header p-py-4" style="text-align: right">
+                                    <span class="filter-container ui-input-icon-right">
+                                        <i class="pi pi-search"></i>
+                                        <p:inputText id="globalFilter" styleClass="preventEnter"  onkeyup="PF('dtstudy').filter()"
+                                                     placeholder="البحث ..."/>
+                                    </span>
+                                </div>
+                            </f:facet>
+
+
+                            <p:column  exportable="false" headerText="تعديـل / حـذف / مرفقات" width="150">
+                                <p:linkButton rendered="#{request.isUserInRole('Study Update')}" icon="pi pi-pencil" outcome="create"
+                                              styleClass="edit-button rounded-button  p-m-2" process="@this">
+                                    <f:param name="id" value="#{study.id}"/>
+                                </p:linkButton>
+                                <p:commandButton  rendered="#{request.isUserInRole('Study Delete')}" class="ui-button-danger rounded-button" icon="pi pi-trash"
+                                                 process="@this" oncomplete="PF('deleteProductDialog').show()">
+                                    <f:setPropertyActionListener value="#{study}"
+                                                                 target="#{studyListController.selected}"/>
+
+                                </p:commandButton>
+                                <p:commandButton icon="pi pi-eye"
+                                                 update=":form:uploadDetils"
+                                                 oncomplete="PF('uploadDialog').show()" process="@this"
+                                                 styleClass="edit-button rounded-button  p-m-2">
+                                    <f:setPropertyActionListener value="#{study}"
+                                                                 target="#{studyListController.selected}"/>
+                                </p:commandButton>
+                            </p:column>
+
+                            <p:column headerText="الرقم الأحصائي" width="120" sortOrder="DESCENDING"
+                                      filterBy="#{study.id}" sortBy="#{study.id}">
+
+                                <h:outputText
+                                        value="#{study.id}">
+                                </h:outputText>
+                            </p:column>
+                            <p:column headerText="اسم الدراسة" sortBy="#{study.name}" width="280"
+                                      filterBy="#{study.name}">
+                                <h:outputText value="#{study.name}"/>
+                            </p:column>
+                            <p:column  headerText="نوع الدراسة" sortBy="#{study.studyType.name}" width="130"
+                                      filterMatchMode="exact" filterBy="#{study.studyType.name}">
+                                <h:outputText value="#{study.studyType.name}"/>
+                                <f:facet name="filter">
+                                    <p:selectOneMenu filter="true" onchange="PF('dtstudy').filter()">
+                                        <f:selectItem itemLabel="الجميع" itemValue="#{null}" noSelectionOption="true"/>
+                                        <f:selectItems value="#{studyListController.studyTypes}" var="studytypes"
+                                                       itemLabel="#{studytypes.name}" itemValue="#{studytypes.name}"/>
+                                    </p:selectOneMenu>
+                                </f:facet>
+                            </p:column>
+                            <p:column headerText="مكان الأصدار" sortBy="#{study.placeIssue}" width="280"
+                                      filterBy="#{study.placeIssue}">
+                                <h:outputText value="#{study.placeIssue}"/>
+                            </p:column>
+                            <p:column
+                                    headerText="التاريخ " field="date" filterMatchMode="between"
+                                    filterBy="#{study.date}"
+                                    width="190">
+                                <f:facet name="filter">
+                                    <p:datePicker selectionMode="range" onchange="PF('dtstudy').filter()"/>
+                                </f:facet>
+                            </p:column>
+
+
+
+
+                        </p:dataTable>
+
+
+                        <p:dialog header="المرفقات" showEffect="fade" modal="true" width="750"
+                                  widgetVar="uploadDialog" responsive="true">
+                            <p:outputPanel id="uploadDetils" class="ui-fluid">
+                                <p:outputPanel >
+                                    <div class="ui-fluid p-formgrid p-grid p-py-4">
+                                        <div class="p-field p-col-12 p-md-12">
+                                            <p:chip label="#{studyListController.selected.name}"
+                                                    styleClass="p-mr-2"/>
+                                        </div>
+
+                                        <p:divider/>
+                                        <div class="p-field p-col-12 p-md-12 p-pt">
+                                            <p:chip label="المرفقات"
+                                                    styleClass="p-mr-2"/>
+                                        </div>
+                                        <div class="p-field p-col-12 p-md-12">
+                                            <p:dataTable stripedRows="true"
+                                                    resizableColumns="true"
+                                                    var="uploadFile"
+                                                    value="#{studyListController.selected.uploadFiles}"
+                                                    size="small"
+                                                    showGridlines="true"
+                                                    emptyMessage="لا توجد مرفقات"
+                                                    paginator="true" rows="5"
+                                                    paginatorPosition="bottom">
+
+                                                <p:column headerText="التسلسل" width="60">
+                                                    <h:outputText
+                                                            value="#{studyListController.selected.uploadFiles.indexOf(uploadFile)+1}"/>
+                                                </p:column>
+
+                                                <p:column headerText="اسم المرفق" style="text-align: center">
+                                                    <h:outputText
+                                                            value="#{studyListController.nameFileUpload(uploadFile.pathFile)}"/>
+                                                </p:column>
+                                                <p:column headerText="صيغة المرفق" width="150"
+                                                          style="text-align: center">
+                                                    <h:outputText
+                                                            value="#{studyListController.extensionFileUpload(uploadFile.pathFile)}"/>
+                                                </p:column>
+
+                                                <p:column headerText="رؤية المرفق" width="80"
+                                                          style="text-align: center">
+
+                                                    <p:commandButton    actionListener="#{studyListController.download(uploadFile)}" ajax="false"
+                                                                  styleClass="edit-button rounded-button "
+                                                               icon="pi pi-eye"/>
+                                                </p:column>
+
+                                            </p:dataTable>
+                                        </div>
+                                    </div>
+                                </p:outputPanel>
+                            </p:outputPanel>
+
+                            <f:facet name="footer">
+
+                                <p:commandButton value="الغاء" icon="pi pi-times"
+                                                 onclick="PF('uploadDialog').hide()" class="ui-button-secondary"/>
+                            </f:facet>
+                        </p:dialog>
+
+
+                        <p:confirmDialog global="true" showEffect="fade" width="400">
+
+                            <p:commandButton value="كلا" type="button"
+                                             styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times"/>
+                            <p:commandButton value="نعم" type="button" styleClass="ui-confirmdialog-yes"
+                                             icon="pi pi-check"/>
+                        </p:confirmDialog>
+
+
+                        <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300"
+                                         message="هل انت متأكد من الحذف ؟" header="تأكيد الحذف" severity="warn">
+                            <p:commandButton value="نعم" icon="pi pi-check"
+                                             actionListener="#{studyListController.remove()}" process="@this"
+                                             oncomplete="PF('deleteProductDialog').hide()"/>
+                            <p:commandButton value="كلا" type="button" styleClass="ui-button-secondary"
+                                             icon="pi pi-times" onclick="PF('deleteProductDialog').hide()"/>
+                        </p:confirmDialog>
+
+
+                    </div>
+                    </h:panelGroup>
+                </div>
+            </div>
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

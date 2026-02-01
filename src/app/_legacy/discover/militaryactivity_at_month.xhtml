@@ -1,0 +1,380 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">كشف نوع الأحداث للأشهر</ui:define>
+<!--    <ui:define name="head">-->
+<!--        <h:outputScript name="js/chart.js" library="demo"/>-->
+<!--        <h:outputScript name="chartjs-plugin-labels.js" library="js"/>-->
+<!--        <script type="text/javascript">-->
+<!--            Chart.defaults.global.plugins.labels = {-->
+<!--                render: 'value',-->
+<!--                fontsize: 30,-->
+<!--                fontStyle: 'bold',-->
+<!--                fontcolor: '#fff'-->
+<!--            }-->
+<!--        </script>-->
+<!--        <script type="text/javascript">-->
+<!--            Chart.defaults.global.plugins.labels = {-->
+<!--                render: function (args) {-->
+<!--                    const num = args.value;-->
+<!--                    const formatter = new Intl.NumberFormat();-->
+<!--                    if (formatter.format(num) > 1000000) return-->
+<!--                    return formatter.format(num)-->
+<!--                },-->
+<!--                fontColor: 'black'-->
+<!--            }-->
+<!--        </script>-->
+<!--    </ui:define>-->
+
+    <ui:define name="content">
+        <h:form id="form" rendered="#{request.isUserInRole('Kshofat View')}">
+            <p:growl id="growl" showDetail="true"/>
+            <p:outputPanel id="manage-product-content" style="overflow-scrolling: auto" class="ui-fluid">
+                <p:fieldset legend="كشف نوع الأحداث للأشهر">
+
+
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-2 ">
+                            <p:outputLabel styleClass="p-text-bold" value="السنة" for="year"/>
+                            <p:selectOneMenu id="year" label="يرجى الاختيار" filter="true"
+                                             filterMatchMode="contains"
+                                             filterPlaceholder="البحث"
+                                             dynamic="true"
+                                             style="overflow-y: scroll; max-height: 8rem;"
+                                             value="#{militaryActivityAtMonthController.year}"
+                                             dir="rtl"
+                                             converter="omnifaces.SelectItemsIndexConverter">
+                                <f:selectItems value="#{militaryActivityAtMonthController.yearList}"
+                                               var="year" itemLabel="#{year}"
+                                               itemValue="#{year}"/>
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="p-field p-col-4 ">
+                            <p:outputLabel styleClass="p-text-bold" value="#{msg.orgs}"
+                            />
+                            <p:selectCheckboxMenu dir="rtl"
+                                                  id="orgName"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  updateLabel="true"
+                                                  showCheckbox="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار #{msg.orgs}"
+                                                  value="#{militaryActivityAtMonthController.orgNamesID}"
+                                                  valueChangeListener="#{militaryActivityAtMonthController.getTypeOrgNameByActivityTypeAndOrgName}"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="orgname"
+                                               value="#{militaryActivityAtMonthController.orgNamesObject}"
+                                               itemLabel="#{orgname.orgName.name}"
+                                               itemValue="#{orgname.orgName.id}"/>
+                                <p:ajax event="change" update="typeOrgName"
+                                        process="@this"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="typeOrgName"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-4">
+                            <p:outputLabel styleClass="p-text-bold" value="#{msg.tOrg} "
+                                           for="typeOrgName"/>
+                            <p:selectCheckboxMenu id="typeOrgName" required="true" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  updateLabel="true"
+                                                  showCheckbox="true"
+                                                  value="#{militaryActivityAtMonthController.orgActivityTypeId}"
+                                                  requiredMessage="يرجى اختيار #{msg.tOrg} "
+                                                  converter="omnifaces.SelectItemsConverter">
+
+                                <f:selectItems var="typeOrg"
+                                               value="#{militaryActivityAtMonthController.orgActivityTypeSelected}"
+                                               itemLabel="#{typeOrg.name}"
+                                               itemValue="#{typeOrg.id}"/>
+                                <p:ajax event="change"
+                                        process="@this" />
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-2">
+                            <p:outputLabel styleClass="p-text-bold" value="المهمة"
+                            />
+                            <p:selectOneMenu label="  المهمة" filter="true"
+                                             filterMatchMode="contains"
+                                             filterPlaceholder="البحث"
+                                             autoWidth="true"
+                                             dir="rtl"
+                                             value="#{militaryActivityAtMonthController.idMission}"
+                                             converter="omnifaces.SelectItemsIndexConverter">
+                                <f:selectItem itemLabel="يرجى الاختيار" noSelectionOption="true"/>
+                                <f:selectItems value="#{militaryActivityAtMonthController.missionNames}"
+                                               var="missionName" itemLabel="#{missionName.name}"
+                                               itemValue="#{missionName.id}"/>
+
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectOneMenu>
+                        </div>
+
+                        <div class="p-field p-col-12 p-xl-3 p-lg-3 p-md-12">
+                            <p:outputLabel styleClass="p-text-bold" value="اسم ال#{msg.ad2} " for="arms2"/>
+                            <p:selectCheckboxMenu id="arms2" label="يرجى الاختيار"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  value="#{militaryActivityAtMonthController.nameAdditionArms}"
+                                                  valueChangeListener="#{militaryActivityAtMonthController.getTypeAddtionByName}"
+                                                  dir="rtl" required="true"
+                                                  multiple="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  dynamic="true"
+                                                  requiredMessage="يرجى الإختيار"
+                                                  converter="omnifaces.SelectItemsConverter">
+
+                                <f:selectItem itemLabel="ميداني" itemValue="ميداني"
+                                />
+                                <f:selectItem itemLabel="علني" itemValue="علني"
+                                />
+                                <f:selectItem itemLabel="فني" itemValue="فني"
+                                />
+                                <f:selectItem itemLabel="رسمي" itemValue="رسمي"
+                                /> <f:selectItem itemLabel="مصدر بشري" itemValue="مصدر بشري"
+                            /> <f:selectItem itemLabel="عكسي" itemValue="عكسي"
+                            />
+                                <p:ajax event="change" update="tra3"/>
+                                <p:ajax event="change" update="tra3Text"/>
+                                <p:ajax event="change" />
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="tra3"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="tra3Text"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" />
+
+                            </p:selectCheckboxMenu>
+                        </div>
+
+
+                        <div class="p-field p-col-12 p-xl-3 p-lg-3 p-md-12">
+                            <p:outputLabel id="tra3Text" styleClass="p-text-bold" value="نوع ال#{msg.ad2}" for="tra3"/>
+                            <p:selectCheckboxMenu
+                                    disabled="#{!militaryActivityAtMonthController.nameAdditionArms.contains('فني') and !militaryActivityAtMonthController.nameAdditionArms.contains('مصدر بشري')}"
+                                    required="#{militaryActivityAtMonthController.armsCheck}"
+                                    id="tra3" label="يرجى الاختيار" filter="true"
+                                    filterPlaceholder="البحث"
+                                    filterMatchMode="contains"
+                                    multiple="true"
+                                    style="overflow-y: scroll; max-height: 8rem;"
+
+                                    dynamic="true"
+                                    requiredMessage="يرجى اختيار #{msg.ad}"
+                                    value="#{militaryActivityAtMonthController.additionArmsTypeId}"
+                                    dir="rtl"
+                                    converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems value="#{militaryActivityAtMonthController.typeArms}"
+                                               var="arm"
+                                               itemLabel="#{arm.name}"
+                                               itemValue="#{arm.id}"/>
+                                <p:ajax event="change"
+                                        process="@this"
+                                />
+                            </p:selectCheckboxMenu>
+                        </div>
+
+
+                        <div class="p-field p-col-4">
+                            <p:outputLabel styleClass="p-text-bold" value="#{msg.hsdAndForce}"/>
+                            <p:selectCheckboxMenu id="selectSecTypes" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار #{msg.hsdAndForce}"
+                                                  value="#{militaryActivityAtMonthController.idOtherHands }"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="otherHands"
+                                               value="#{militaryActivityAtMonthController.otherHands}"
+                                               itemLabel="#{otherHands.name}"
+                                               itemValue="#{otherHands.id}"/>
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-2 ">
+                            <p:outputLabel for="citiesID" styleClass="p-text-bold" value="التبعية المنجزة"/>
+                            <p:selectCheckboxMenu id="monjaz" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار التبعية المنجزة"
+                                                  value="#{militaryActivityAtMonthController.monjaz}">
+
+                                <f:selectItem itemLabel="#{msg.hashd}" itemValue="#{msg.hashd}"/>
+                                <f:selectItem itemLabel="القوات الأمنية" itemValue="القوات الأمنية"/>
+                                <f:selectItem itemLabel="مشترك" itemValue="مشترك"/>
+                                <f:selectItem itemLabel="المدنيين" itemValue="المدنيين"/>
+                                <f:selectItem itemLabel="البنى التحتية" itemValue="البنى التحتية"/>
+
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-3 ">
+                            <p:outputLabel for="citiesID" styleClass="p-text-bold" value="المحافظات"/>
+                            <p:selectCheckboxMenu id="citiesID" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار المحافظات"
+                                                  value="#{militaryActivityAtMonthController.citiesID }"
+                                                  valueChangeListener="#{militaryActivityAtMonthController.findDistrictByCity}"
+
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="city"
+                                               value="#{militaryActivityAtMonthController.cities}"
+                                               itemLabel="#{city.name}"
+                                               itemValue="#{city.id}"/>
+                                <p:ajax event="change"
+                                        process="@this" update="district"/>
+                                <p:ajax event="toggleSelect"
+                                        process="@this" update="district"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-3 ">
+                            <p:outputLabel for="district" styleClass="p-text-bold" value="القضاء"/>
+                            <p:selectCheckboxMenu id="district" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار الأقضية"
+                                                  value="#{militaryActivityAtMonthController.districtIdList }"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="district"
+                                               value="#{militaryActivityAtMonthController.districts}"
+                                               itemLabel="#{district.name}"
+                                               itemValue="#{district.id}"/>
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-4 ">
+                            <p:outputLabel for="reportName" styleClass="p-text-bold" value="عنوان الكشف"/>
+                            <p:inputText value="#{militaryActivityAtMonthController.reportName}"
+                                         id="reportName"
+                                         required="true" requiredMessage="يرجى إدخال عنوان الكشف"/>
+                        </div>
+
+                        <div class="p-col-4 p-jc-center p-ac-center ">
+                            <p:commandButton id="filterBtn" value="بحث" icon="pi pi-check"
+                                             styleClass="p-mt-5 ui-button-success"
+                                             actionListener="#{militaryActivityAtMonthController.onFilter()}"
+                                             style="width: 90px;"
+                                             update="form"
+                                             process="@form,year"
+                            />
+                            <p:commandButton value="اعادة ضبط الكشف" icon="pi pi-refresh" styleClass="p-mt-5"
+                                             actionListener="#{militaryActivityAtMonthController.init}"
+                                             style="width: 160px; margin-right: 1rem"
+                                             update="form"
+                            />
+                            <p:commandButton rendered="#{militaryActivityAtMonthController.months.size() != 0}"
+                                             value="طباعة" icon="pi pi-print"
+                                             action="#{militaryActivityAtMonthController.incrementCounter()}"
+                                             process="@form"
+                                             style="width: 120px ; margin-right: 1rem"
+                                             onclick="printDoc('militaryactivity_at_monthPrint')"/>
+
+                            <p:commandButton rendered="#{militaryActivityAtMonthController.months.size() != 0}"
+                                             value="المخطط البياني" icon="pi pi-chart-line"
+                                             action="#{militaryActivityAtMonthController.incrementCounter()}"
+                                             process="@form" update="f1"
+                                             oncomplete="PF('chartDialog').show()"
+                                             style="width: 170px ; margin-right: 1rem"
+                            />
+
+                        </div>
+                    </div>
+                </p:fieldset>
+            </p:outputPanel>
+
+            <!--      =========================================================================  the table  =================== -->
+
+            <p:dataTable emptyMessage="لاتوجد نتائج" id="tblPlayers" var="player"
+                         value="#{militaryActivityAtMonthController.orgNamesList}"
+                         style="margin-top:40px;text-align: center">
+                <f:facet name="header">
+                    <h:outputText value="كشف نوع الأحداث للأشهر " style="font-size: x-large;"/>
+                </f:facet>
+                <p:columnGroup type="header">
+
+                    <p:row>
+                        <p:column rendered="#{militaryActivityAtMonthController.months.size() != 0}"
+                                  style="text-align: center"
+                                  headerText="نوع الأحداث"/>
+                        <p:columns var="col" value="#{militaryActivityAtMonthController.months}" headerText="#{col}"
+                                   style="text-align: center"/>
+                    </p:row>
+                </p:columnGroup>
+                <p:column>
+                    <h:outputLabel value="#{player.split(',')[0]}" style="text-align: center"/>
+                </p:column>
+                <p:columns var="cityName" value="#{militaryActivityAtMonthController.months}"
+                           style="text-align: center">
+                    <h:outputLabel
+                            style=" font-weight: #{militaryActivityAtMonthController.getOrgNames(cityName,player) == 0 ? 'normal':'bold' } ; font-size: large "
+                            value="#{militaryActivityAtMonthController.getOrgNames(cityName,player) } "/>
+                </p:columns>
+            </p:dataTable>
+
+
+
+        </h:form>
+        <h:form id="f1">
+            <p:dialog style="background:transparent" header="نافذة المخطط البياني" showEffect="fade" modal="true"
+                      width="2000" height="500"
+                      widgetVar="chartDialog" responsive="true">
+
+                <p:barChart id="stack-canvas" model="#{militaryActivityAtMonthController.stackedBarModel}"
+                            style="width: 100%; height: 450px; ">
+                </p:barChart>
+
+
+                <f:facet name="footer">
+                    <p:commandButton value="الغاء" icon="pi pi-times"
+                                     onclick="PF('chartDialog').hide()" class="ui-button-secondary"/>
+                </f:facet>
+            </p:dialog>
+        </h:form>
+
+        <!--        IN PRINT DOC METHOD, PASS DOCUMENT'S NAME TO PRINT ITS CONTENT-->
+        <!--        ADD THIS ELEMENT TO EACH PAGE HAS A PRINT BUTTON-->
+        <iframe width="100%" height="1000px" id="print-page" style="display:none;"></iframe>
+
+    </ui:define>
+
+</ui:composition>
+

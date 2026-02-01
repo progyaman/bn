@@ -1,0 +1,237 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/template.xhtml">
+
+    <ui:define name="title">كشف #{msg.lst} القوات الامنية والجهات الصديقة </ui:define>
+
+
+    <ui:define name="content">
+
+        <h:form id="form" rendered="#{request.isUserInRole('Kshofat View')}">
+            <p:growl id="growl" showDetail="true"/>
+            <p:outputPanel id="manage-product-content" style="overflow-scrolling: auto" class="ui-fluid">
+                <p:fieldset legend="كشف #{msg.lst} القوات الامنية والجهات الصديقة">
+                    <div class="ui-fluid p-formgrid p-grid">
+                        <div class="p-field p-col-4 ">
+                            <p:outputLabel styleClass="p-text-bold" for="dates" value="تحديد بين تاريخين"/>
+                            <p:datePicker selectionMode="range"
+                                          id="dates"
+                                          monthNavigator="true" yearNavigator="true"
+                                          value="#{ourSidesCasualtiesController.dateRange}"
+                                          touchUI="true" showOnFocus="true" showButtonBar="true"
+                                          showOtherMonths="true"
+                                          required="true"
+                                          requiredMessage=" بحث بين تاريخين"
+                                          onchange="PF('form').filter()"
+                                          placeholder="بحث بين تاريخين"/>
+                        </div>
+
+                        <div class="p-field p-col-4 ">
+                            <p:outputLabel for="citiesID" styleClass="p-text-bold" value="المحافظات"/>
+                            <p:selectCheckboxMenu id="citiesID" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage="يرجئ ادخال المحافظات"
+                                                  value="#{ourSidesCasualtiesController.cityIdList }"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="city"
+                                               value="#{ourSidesCasualtiesController.cities}"
+                                               itemLabel="#{city.name}"
+                                               itemValue="#{city.id}"/>
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-12 p-md-4">
+                            <p:outputLabel styleClass="p-text-bold" value="#{msg.org}" for="org"/>
+
+                            <p:selectCheckboxMenu id="org" label="يرجى الاختيار" filter="true"
+                                                  filterMatchMode="contains"
+                                                  filterPlaceholder="البحث"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  value="#{ourSidesCasualtiesController.orgIdsList}"
+                                                  dir="rtl"
+                                                  required="true"
+                                                  requiredMessage="يرجئ ادخال  #{msg.orgs}"
+                                                  converter="omnifaces.SelectItemsConverter">
+
+                                <f:selectItems value="#{ourSidesCasualtiesController.organizationList}"
+                                               var="org1" itemLabel="#{org1.orgName.name}"
+                                               itemValue="#{org1.orgName.id}"/>
+
+                            </p:selectCheckboxMenu>
+                        </div>
+
+                        <div class="p-field p-col-3">
+                            <p:outputLabel styleClass="p-text-bold" value="القوات الأمنية"
+                                           for="selectSecTypes"/>
+                            <p:selectCheckboxMenu id="selectSecTypes" dir="rtl"
+                                                  filter="true"
+                                                  multiple="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  updateLabel="true"
+                                                  dynamic="true"
+                                                  rendered="true"
+                                                  required="true"
+                                                  requiredMessage="رجى ادخال القوات الأمنية المطلوب عرض #{msg.lst}ها"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  value="#{ourSidesCasualtiesController.allysString}"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems var="var"
+                                               value="#{ourSidesCasualtiesController.allyesMap.keySet()}"
+                                               itemLabel="#{ourSidesCasualtiesController.allyesMap.get(var)}"
+                                               itemValue="#{var}"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-3 ">
+                            <p:outputLabel for="citiesID" styleClass="p-text-bold" value="التبعية المنجزة"/>
+                            <p:selectCheckboxMenu id="monjaz" dir="rtl"
+                                                  filter="true"
+                                                  filterPlaceholder="البحث" filterMatchMode="contains"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  required="true"
+                                                  requiredMessage=" يرجى اختيار التبعية المنجزة"
+                                                  value="#{ourSidesCasualtiesController.monjaz}">
+
+                                <f:selectItem itemLabel="#{msg.hashd}" itemValue="#{msg.hashd}"/>
+                                <f:selectItem itemLabel="القوات الأمنية" itemValue="القوات الأمنية"/>
+                                <f:selectItem itemLabel="مشترك" itemValue="مشترك"/>
+                                <f:selectItem itemLabel="المدنيين" itemValue="المدنيين"/>
+                                <f:selectItem itemLabel="البنى التحتية" itemValue="البنى التحتية"/>
+
+                                <p:ajax event="change"
+                                        process="@this"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+                        <div class="p-field p-col-12 p-md-3">
+                            <p:outputLabel styleClass="p-text-bold" value="اسم المهمة او العملية"
+                                           for="missionName"/>
+                            <p:selectOneMenu autoWidth="false" id="missionName" label="يرجى الاختيار"
+                                             filter="true"
+                                             filterMatchMode="contains"
+                                             filterPlaceholder="البحث"
+                                             value="#{ourSidesCasualtiesController.missionId}"
+                                             dir="rtl"
+                                             converter="omnifaces.SelectItemsIndexConverter">
+                                <f:selectItem itemLabel="يرجى الاختيار" noSelectionOption="true"/>
+                                <f:selectItems value="#{ourSidesCasualtiesController.missionNameList}"
+                                               var="nameMission" itemLabel="#{nameMission.name}"
+                                               itemValue="#{nameMission.id}"/>
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="p-field p-col-3">
+                            <p:outputLabel styleClass="p-text-bold" value="نوع ال#{msg.lst}" for="ourLosses"/>
+                            <p:selectCheckboxMenu id="ourLosses" label="يرجى الاختيار" filter="true"
+                                                  filterMatchMode="contains"
+                                                  filterPlaceholder="البحث"
+                                                  multiple="true"
+                                                  dynamic="true"
+                                                  required="true"
+                                                  requiredMessage="يرجئ ادخال انواع ال#{msg.lst}"
+                                                  style="overflow-y: scroll; max-height: 8rem;"
+                                                  value="#{ourSidesCasualtiesController.ourSideCasualtiesList}"
+                                                  dir="rtl"
+                                                  converter="omnifaces.SelectItemsIndexConverter">
+
+                                <f:selectItems value="#{ourSidesCasualtiesController.ourSideCasualtiesMap.keySet()}"
+                                               var="ourLosses"
+                                               itemLabel="#{ourSidesCasualtiesController.ourSideCasualtiesMap.get(ourLosses)}"
+                                               itemValue="#{ourLosses}"/>
+                            </p:selectCheckboxMenu>
+                        </div>
+
+
+                        <div class="p-field p-col-4 ">
+                            <p:outputLabel for="reportName" styleClass="p-text-bold" value="عنوان الكشف"/>
+                            <p:inputText value="#{ourSidesCasualtiesController.reportName}"
+                                         id="reportName"
+                                         required="true" requiredMessage="يرجى إدخال عنوان الكشف"/>
+                        </div>
+
+                    </div>
+                    <div class="ui-fluid p-formgrid p-grid">
+
+                        <div class="p-col-4 p-jc-center p-ac-center">
+                            <p:commandButton id="filterBtn" value="بحث" icon="pi pi-check"
+                                             styleClass="p-mt-5 ui-button-success"
+                                             actionListener="#{ourSidesCasualtiesController.onFilter()}"
+                                             style="width: 90px;"
+                                             update="form"
+                                             process="@form,dates"
+                            />
+                            <p:commandButton value="اعادة ضبط الكشف" icon="pi pi-refresh" styleClass="p-mt-5"
+                                             actionListener="#{ourSidesCasualtiesController.init}"
+                                             style="width: 160px; margin-right: 1rem"
+                                             update="form"
+                            />
+                            <p:commandButton rendered="#{ourSidesCasualtiesController.cityList.size() != 0}"
+                                             value="طباعة" icon="pi pi-print"
+                                             action="#{ourSidesCasualtiesController.incrementCounter()}"
+                                             process="@this"
+                                             style="width: 120px ; margin-right: 1rem"
+                                             onclick="printDoc('ourSidesCasualtiesPrint')"/>
+
+                        </div>
+                    </div>
+
+                </p:fieldset>
+                <p:blockUI block="form" trigger="filterBtn">
+                    <i class="pi pi-spin pi-spinner" style="font-size: 6rem"></i>
+                </p:blockUI>
+            </p:outputPanel>
+
+
+            <!--=================================================================================  the Table  ======= -->
+
+            <p:dataTable emptyMessage="لاتوجد نتائج" id="tblPlayers" var="player"
+                         value="#{ourSidesCasualtiesController.casualtiesDataList}"
+                         style="margin-top:40px;text-align: center">
+                <f:facet name="header">
+                    <h:outputText value="#{msg.lst} القوات الامنية في المحافظات" style="font-size: x-large;"/>
+                </f:facet>
+                <p:columnGroup type="header">
+                    <p:row>
+                        <p:column rowspan="1"/>
+                        <p:column style="text-align: initial" colspan="#{ourSidesCasualtiesController.columnCount()}"
+                                  headerText="المحافظات"/>
+                    </p:row>
+                    <p:row>
+                        <p:column rendered="#{ourSidesCasualtiesController.cityList.size() != 0}"
+                                  style="text-align: center"
+                                  headerText="نوع ال#{msg.lst}"/>
+                        <p:columns var="col" value="#{ourSidesCasualtiesController.cityList}" headerText="#{col}"
+                                   style="text-align: center"/>
+
+                    </p:row>
+                </p:columnGroup>
+                <p:column>
+                    <h:outputLabel value="#{player}" style="text-align: center"/>
+                </p:column>
+                <p:columns var="cityName" value="#{ourSidesCasualtiesController.cityList}" style="text-align: center">
+                    <h:outputLabel value="#{ourSidesCasualtiesController.getOrgNames(cityName,player)}"/>
+                </p:columns>
+            </p:dataTable>
+
+
+        </h:form>
+        <!--        IN PRINT DOC METHOD, PASS DOCUMENT'S NAME TO PRINT ITS CONTENT-->
+        <!--        ADD THIS ELEMENT TO EACH PAGE HAS A PRINT BUTTON-->
+        <iframe width="100%" height="1000px" id="print-page" style="display:none;"></iframe>
+    </ui:define>
+
+</ui:composition>
+
