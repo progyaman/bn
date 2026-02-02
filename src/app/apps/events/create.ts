@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -13,6 +13,10 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
+import { DialogModule } from 'primeng/dialog';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { TagModule } from 'primeng/tag';
 import { EventTypeSidebarComponent } from './event-type-sidebar.component';
 import * as L from 'leaflet';
 
@@ -39,6 +43,21 @@ interface CreateEventModel {
     additionArms?: string;
     holdingForces?: string[];
     coordinates: string[];
+    locationRows?: LocationRow[];
+}
+
+interface LocationRow {
+    id: number;
+    coords: string;
+    path: string;
+}
+
+interface DraftEntry {
+    id: string;
+    timestamp: Date;
+    missionName?: string;
+    newsPreview?: string;
+    model: CreateEventModel;
 }
 
 interface AttachmentRow {
@@ -66,10 +85,15 @@ interface AttachmentRow {
         InputNumberModule,
         TableModule,
         TooltipModule,
+        DialogModule,
+        ToastModule,
+        TagModule,
         EventTypeSidebarComponent
     ],
+    providers: [MessageService],
     template: `
         <div class="page-container animate-fadein" dir="rtl">
+            <p-toast position="top-left" />
             <app-event-type-sidebar #typeSidebar (actionClicked)="handleEventTypeAction($event)" class="hidden" />
             
             <!-- Custom Mega Topbar Trigger -->
@@ -355,21 +379,61 @@ interface AttachmentRow {
                                 <p-button [label]="showMap ? 'إخفاء الخارطة' : 'تحديد على الخارطة'" [icon]="showMap ? 'pi pi-eye-slash' : 'pi pi-map'" [outlined]="true" size="small" (onClick)="toggleMap()" />
                             </div>
                         </div>
-                        <div class="p-3 flex flex-col gap-2">
-                            <div class="flex items-center justify-between text-sm bg-primary-50 dark:bg-primary-900/10 p-2 rounded-lg border border-primary-100 dark:border-primary-800 transition-all">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-surface-500 font-medium text-xs">خط العرض:</span>
-                                    <span class="font-bold text-primary tabular-nums">{{ model.coordinates[0] || '--.------' }}</span>
+                        <div class="p-3 flex flex-col gap-3">
+                            <div class="flex flex-col gap-2 p-3 bg-primary-50 dark:bg-primary-900/10 rounded-xl border border-primary-100 dark:border-primary-800 transition-all">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-xs font-bold text-primary">الإحداثيات الحالية</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] text-primary-400 tabular-nums">{{ model.coordinates[0] || '--.------' }}</span>
+                                        <div class="w-px h-2 bg-primary-200 mx-1"></div>
+                                        <span class="text-[10px] text-primary-400 tabular-nums">{{ model.coordinates[1] || '--.------' }}</span>
+                                    </div>
                                 </div>
-                                <div class="w-px h-4 bg-primary-200 dark:bg-primary-800 mx-2"></div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-surface-500 font-medium text-xs">خط الطول:</span>
-                                    <span class="font-bold text-primary tabular-nums text-left">{{ model.coordinates[1] || '--.------' }}</span>
+                                <div class="flex items-start gap-2">
+                                    <i class="pi pi-map-marker text-primary mt-0.5"></i>
+                                    <span class="text-sm font-medium leading-tight text-surface-700 dark:text-surface-300">
+                                        {{ locationPath || 'لم يتم تحديد موقع على الخارطة بعد...' }}
+                                    </span>
                                 </div>
                             </div>
+                            <p-button 
+                                label="إضافة الإحداثي للجدول" 
+                                icon="pi pi-plus" 
+                                severity="primary" 
+                                [outlined]="true" 
+                                class="w-full"
+                                [disabled]="!locationPath || model.coordinates.length < 2"
+                                (onClick)="addLocationToTable()" />
                         </div>
+
                         <div class="map-wrapper" [class.expanded]="showMap">
                              <div #mapContainer class="map-container"></div>
+                        </div>
+
+                        <!-- Locations Table -->
+                        <div class="p-3 border-t border-sky-200 dark:border-sky-300 bg-surface-50/50" *ngIf="locationRows.length > 0">
+                            <h3 class="text-sm font-bold mb-3 flex items-center gap-2 text-surface-700">
+                                <i class="pi pi-list text-primary"></i>
+                                المواقع المحددة
+                            </h3>
+                            <p-table [value]="locationRows" styleClass="p-datatable-sm custom-locations-table">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th style="width: 3rem"></th>
+                                        <th>المسار</th>
+                                        <th class="text-center">الإحداثيات</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-row>
+                                    <tr>
+                                        <td>
+                                            <p-button icon="pi pi-trash" [text]="true" severity="danger" size="small" (onClick)="removeLocationRow(row)" />
+                                        </td>
+                                        <td class="text-xs truncate max-w-[150px]" [pTooltip]="row.path">{{ row.path }}</td>
+                                        <td class="text-[10px] tabular-nums text-center text-surface-400">{{ row.coords }}</td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
                         </div>
                     </div>
                 </div>
@@ -379,7 +443,15 @@ interface AttachmentRow {
                 <div class="action-container flex flex-wrap items-center justify-between gap-4 max-w-7xl w-full">
                     <div class="flex items-center gap-2">
                         <p-button label="حفظ الحدث" icon="pi pi-check-circle" severity="success" class="action-btn-primary" (onClick)="onSave()" />
-                        <p-button label="حفظ كمسودة" icon="pi pi-save" [outlined]="true" severity="secondary" (onClick)="onSaveDraft()" />
+                        <div class="flex items-center gap-1 bg-surface-50 dark:bg-surface-800 p-1 rounded-xl border border-surface-200 dark:border-surface-700">
+                            <p-button label="حفظ كمسودة" icon="pi pi-save" [outlined]="true" severity="secondary" (onClick)="onSaveDraft()" />
+                            <div class="relative">
+                                <p-button (onClick)="showDrafts = true" icon="pi pi-folder-open" [text]="true" severity="secondary" pTooltip="عرض المسودات" />
+                                <span *ngIf="drafts.length > 0" class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white font-bold ring-2 ring-white">
+                                    {{ drafts.length }}
+                                </span>
+                            </div>
+                        </div>
                         <div class="flex items-center gap-1">
                             <p-button label="المضبوطات" icon="pi pi-briefcase" [text]="true" severity="secondary" (onClick)="onOpenSeizure()" />
                             <p-button label="إدخال النتائج" icon="pi pi-list" [text]="true" severity="secondary" (onClick)="onOpenResults()" />
@@ -400,6 +472,50 @@ interface AttachmentRow {
                     </div>
                 </div>
             </div>
+
+            <!-- Drafts Dialog -->
+            <p-dialog [(visible)]="showDrafts" header="المسودات المحفوظة" [modal]="true" [style]="{ width: '70vw' }" [breakpoints]="{ '1199px': '85vw', '575px': '95vw' }" [draggable]="false" [resizable]="false" appendTo="body">
+                <div class="p-2" dir="rtl">
+                    <p-table [value]="drafts" [rows]="5" [paginator]="true" styleClass="p-datatable-sm custom-table-modern">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>المهمة / الخبر</th>
+                                <th>تاريخ الحفظ</th>
+                                <th class="text-center" style="width: 150px">الإجراءات</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-draft>
+                            <tr>
+                                <td>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-surface-900">{{ draft.missionName || 'بدون عنوان' }}</span>
+                                        <span class="text-xs text-surface-500 truncate max-w-xs">{{ draft.newsPreview || 'لا يوجد متن...' }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-sm text-surface-600">{{ draft.timestamp | date:'yyyy-MM-dd HH:mm' }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <p-button icon="pi pi-external-link" [text]="true" severity="primary" size="small" (onClick)="loadDraft(draft)" pTooltip="استرجاع" />
+                                        <p-button icon="pi pi-trash" [text]="true" severity="danger" size="small" (onClick)="deleteDraft(draft)" pTooltip="حذف" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="3">
+                                    <div class="flex flex-col items-center justify-center p-8 text-surface-400">
+                                        <i class="pi pi-save text-5xl mb-4 opacity-20"></i>
+                                        <p class="m-0">لا توجد مسودات محفوظة حالياً.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </p-dialog>
         </div>
     `,
     styles: [`
@@ -465,6 +581,20 @@ interface AttachmentRow {
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             border-color: var(--primary-100);
         }
+        :host ::ng-deep {
+            .custom-locations-table {
+                .p-datatable-thead > tr > th {
+                    background: transparent;
+                    font-size: 10px;
+                    padding: 0.5rem;
+                    border-bottom: 1px solid #e2e8f0;
+                }
+                .p-datatable-tbody > tr > td {
+                    padding: 0.5rem;
+                    border-bottom: 1px solid #f1f5f9;
+                }
+            }
+        }
     `]
 })
 export class CreateEvent implements AfterViewInit {
@@ -473,9 +603,14 @@ export class CreateEvent implements AfterViewInit {
     marker?: L.Marker;
 
     showMap = true;
+    showDrafts = false;
     isMegaMenuOpen = false;
     selectedEventType = '';
     selectedIcon = '';
+    activeDraftId: string | null = null;
+
+    locationPath = '';
+    locationRows: LocationRow[] = [];
 
     eventTypes = [
         { label: 'نشاط أمني', description: 'توثيق الأنشطة والعمليات الأمنية الميدانية والمهمات الخاصة', icon: 'pi pi-shield', color: '#ffc107' },
@@ -496,10 +631,11 @@ export class CreateEvent implements AfterViewInit {
     };
 
     attachments: AttachmentRow[] = [];
+    drafts: DraftEntry[] = [];
 
     activityTypes = ['مكافحة ارها ب', 'جريمة منظمة', 'أمن داخلي'];
     missionNames = ['عملية البرق', 'مهمة الفجر', 'المراقبة المستمرة'];
-    organizationOptions = ['قيادة اليرموك', 'مركز الرشيد', 'مكتب الاستخبارات'];
+    organizationOptions = ['قيادة اليرموك', 'مركز الرشيد', 'مكتب '];
     typeOrgNameOptions = ['مداهمة', 'تفتيش', 'كمين', 'استطلاع'];
     tab3yeaOptions = ['قوة أمنية', 'مشترك', 'مدني', 'بناء تحتي'];
     otherHandsOptions = ['التحالف الدولي', 'الحشد الشعبي', 'الدفاع المدني'];
@@ -513,12 +649,93 @@ export class CreateEvent implements AfterViewInit {
     requestMuSuggestions: string[] = [];
     private allRequestMu = ['جهاز مكافحة الارها ب', 'وزارة الداخلية', 'العمليات المشتركة'];
     sourceMuSuggestions: string[] = [];
-    private allSourceMu = ['الاستخبارات العسكرية', 'الأمن الوطني'];
+    private allSourceMu = [' العسكرية', 'الأمن الوطني'];
+
+    constructor(
+        private messageService: MessageService,
+        private cd: ChangeDetectorRef
+    ) {
+        this.loadDraftsFromStorage();
+    }
 
     ngAfterViewInit() {
         if (this.showMap) {
             setTimeout(() => this.initMap(), 500);
         }
+    }
+
+    private loadDraftsFromStorage() {
+        if (typeof window !== 'undefined' && window.localStorage) {
+            const saved = localStorage.getItem('bn_event_drafts');
+            if (saved) {
+                try {
+                    this.drafts = JSON.parse(saved);
+                } catch (e) {
+                    this.drafts = [];
+                }
+            }
+        }
+    }
+
+    private saveDraftsToStorage() {
+        if (typeof window !== 'undefined' && window.localStorage) {
+            localStorage.setItem('bn_event_drafts', JSON.stringify(this.drafts));
+        }
+    }
+
+    onSaveDraft() {
+        if (this.calcProgress() < 100) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'نموذج غير مكتمل',
+                detail: 'يرجى إكمال جميع الحقول الإلزامية لتصل نسبة الاكتمال إلى 100% قبل الحفظ كمسودة.'
+            });
+            return;
+        }
+
+        const modelToSave = { 
+            ...this.model, 
+            locationRows: this.locationRows 
+        };
+
+        const newDraft: DraftEntry = {
+            id: Date.now().toString(),
+            timestamp: new Date(),
+            missionName: this.model.missionName,
+            newsPreview: this.model.theNews?.substring(0, 100),
+            model: modelToSave
+        };
+
+        this.drafts.unshift(newDraft);
+        this.saveDraftsToStorage();
+        this.messageService.add({ severity: 'info', summary: 'تم الحفظ', detail: 'تم حفظ المسودة بنجاح' });
+        
+        this.resetForm();
+    }
+
+    loadDraft(draft: DraftEntry) {
+        this.model = { ...draft.model };
+        this.activeDraftId = draft.id;
+        this.locationRows = draft.model.locationRows || [];
+        // Convert date strings back to Date objects if needed
+        if (this.model.date) this.model.date = new Date(this.model.date);
+        if (this.model.time) this.model.time = new Date(this.model.time);
+        
+        this.showDrafts = false;
+        
+        if (this.model.coordinates && this.model.coordinates.length === 2 && this.map) {
+            const lat = parseFloat(this.model.coordinates[0]);
+            const lng = parseFloat(this.model.coordinates[1]);
+            this.setMarker(L.latLng(lat, lng));
+            this.map.panTo([lat, lng]);
+        }
+        
+        this.messageService.add({ severity: 'success', summary: 'تم الاسترجاع', detail: 'تم تحميل بيانات المسودة' });
+    }
+
+    deleteDraft(draft: DraftEntry) {
+        this.drafts = this.drafts.filter(d => d.id !== draft.id);
+        this.saveDraftsToStorage();
     }
 
     toggleMegaMenu() { this.isMegaMenuOpen = !this.isMegaMenuOpen; }
@@ -552,12 +769,68 @@ export class CreateEvent implements AfterViewInit {
         this.map = L.map(this.mapElement.nativeElement).setView([33.3152, 44.3661], 6);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
         this.map.on('click', (e: any) => this.setMarker(e.latlng));
+
+        if (this.model.coordinates && this.model.coordinates.length === 2) {
+            const lat = parseFloat(this.model.coordinates[0]);
+            const lng = parseFloat(this.model.coordinates[1]);
+            this.setMarker(L.latLng(lat, lng));
+        }
     }
 
     private setMarker(latlng: L.LatLng) {
         if (this.marker) this.marker.setLatLng(latlng);
-        else this.marker = L.marker(latlng, { draggable: true }).addTo(this.map);
+        else {
+            this.marker = L.marker(latlng, { draggable: true }).addTo(this.map);
+            this.marker.on('dragend', () => {
+                const pos = this.marker!.getLatLng();
+                this.onMarkerUpdate(pos);
+            });
+        }
+        this.onMarkerUpdate(latlng);
+    }
+
+    private onMarkerUpdate(latlng: L.LatLng) {
         this.model.coordinates = [latlng.lat.toFixed(6), latlng.lng.toFixed(6)];
+        this.reverseGeocode(latlng.lat, latlng.lng);
+    }
+
+    private async reverseGeocode(lat: number, lng: number) {
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`);
+            const data = await response.json();
+            if (data && data.display_name) {
+                const parts = data.display_name.split(',').map((p: string) => p.trim());
+                const path = parts.slice(0, 4).reverse().join(', ');
+                this.locationPath = path;
+                this.cd.detectChanges();
+            }
+        } catch (error) {
+            console.error('Geocoding error:', error);
+        }
+    }
+
+    addLocationToTable() {
+        if (!this.locationPath || this.model.coordinates.length < 2) return;
+        
+        const coords = `${this.model.coordinates[0]}, ${this.model.coordinates[1]}`;
+        
+        // Prevent duplicate consecutive entries with same coords
+        const last = this.locationRows[this.locationRows.length - 1];
+        if (!last || last.coords !== coords) {
+            this.locationRows.push({
+                id: Date.now(),
+                coords: coords,
+                path: this.locationPath
+            });
+            this.messageService.add({ severity: 'success', summary: 'تمت الإضافة', detail: 'تم إضافة الموقع للجدول' });
+        } else {
+            this.messageService.add({ severity: 'warn', summary: 'تكرار', detail: 'هذا الموقع مضاف بالفعل في الجدول' });
+        }
+        this.cd.detectChanges();
+    }
+
+    removeLocationRow(row: LocationRow) {
+        this.locationRows = this.locationRows.filter(r => r.id !== row.id);
     }
 
     filterRequestMu(event: any) {
@@ -590,8 +863,64 @@ export class CreateEvent implements AfterViewInit {
         return Math.round((fields.filter(f => !!f).length / fields.length) * 100);
     }
 
-    onSaveDraft() { console.log('Draft', this.model); }
-    onSave() { console.log('Save', this.model); }
+    onSave() {
+        if (this.calcProgress() < 100) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'نموذج غير مكتمل',
+                detail: 'يرجى إكمال جميع الحقول الإلزامية لتصل نسبة الاكتمال إلى 100% قبل الحفظ.'
+            });
+            return;
+        }
+
+        const dataToSave = {
+            ...this.model,
+            locationRows: this.locationRows
+        };
+
+        console.log('Save', dataToSave);
+
+        // If this was loaded from a draft, remove it from the drafts table
+        if (this.activeDraftId) {
+            this.drafts = this.drafts.filter(d => d.id !== this.activeDraftId);
+            this.saveDraftsToStorage();
+            this.activeDraftId = null;
+        }
+
+        this.messageService.add({
+            severity: 'success',
+            summary: 'تم بنجاح',
+            detail: 'تم حفظ الحدث بنجاح وتمت إزالة المسودة'
+        });
+        this.resetForm();
+    }
+
+    private resetForm() {
+        this.model = {
+            date: null,
+            time: null,
+            durationHours: null,
+            destinationKm: null,
+            coordinates: []
+        };
+        this.locationRows = [];
+        this.locationPath = '';
+        this.attachments = [];
+        this.activeDraftId = null;
+        this.selectedEventType = '';
+        this.selectedIcon = '';
+        
+        if (this.marker) {
+            this.marker.remove();
+            this.marker = undefined;
+        }
+        
+        if (this.map) {
+            this.map.setView([33.3152, 44.3661], 6);
+        }
+        this.cd.detectChanges();
+    }
+
     onOpenSeizure() {}
     onOpenResults() {}
     onOpenAddTarget() {}
