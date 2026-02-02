@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, AfterViewInit, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild, ChangeDetectorRef, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
@@ -96,87 +96,6 @@ interface AttachmentRow {
             <p-toast position="top-left" />
             <app-event-type-sidebar #typeSidebar (actionClicked)="handleEventTypeAction($event)" class="hidden" />
             
-            <!-- Custom Mega Topbar Trigger -->
-            <div class="mega-topbar mb-6 p-4 bg-white dark:bg-surface-900 rounded-2xl shadow-sm border border-surface-200 dark:border-surface-800 flex items-center justify-between relative z-[1000]">
-                <div class="flex items-center gap-6">
-                    <!-- Mega Menu Trigger -->
-                    <div class="relative flex items-center gap-2 cursor-pointer group px-4 py-2 rounded-xl hover:bg-surface-50 dark:hover:bg-surface-800 transition-all duration-300 select-none"
-                         (click)="toggleMegaMenu()" (mouseenter)="openMegaMenu()" (mouseleave)="closeMegaMenu()">
-                        
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                <i class="pi pi-plus-circle text-primary text-xl"></i>
-                            </div>
-                            <span class="text-xl font-bold bg-gradient-to-l from-primary to-primary-600 bg-clip-text text-transparent">إضافة حدث</span>
-                            <i class="pi pi-chevron-down text-xs transition-transform duration-300" [class.rotate-180]="isMegaMenuOpen"></i>
-                        </div>
-
-                        <!-- Mega Menu Dropdown -->
-                        <div class="mega-menu-dropdown absolute top-full right-0 mt-4 shadow-2xl transition-all duration-300 origin-top-right transform z-[1100]"
-                             [class.visible]="isMegaMenuOpen" [class.opacity-100]="isMegaMenuOpen" [class.scale-100]="isMegaMenuOpen"
-                             [class.invisible]="!isMegaMenuOpen" [class.opacity-0]="!isMegaMenuOpen" [class.scale-95]="!isMegaMenuOpen"
-                             (mouseenter)="openMegaMenu()" (mouseleave)="closeMegaMenu()">
-                            
-                             <div class="mega-menu-content p-6 bg-[#f6f7fb] dark:bg-surface-950 rounded-[32px] border border-white/50 shadow-2xl w-[900px]">
-                                <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr_1fr] gap-4">
-                                    
-                                    <!-- Big Card (Spans 2 rows) -->
-                                    <div class="mega-card bg-[#ffc107] hover:bg-[#ffb300] p-8 rounded-[28px] lg:row-span-2 flex flex-col justify-between group/card cursor-pointer transform hover:scale-[1.02] transition-all duration-300 shadow-lg shadow-yellow-500/10"
-                                         (click)="selectEventType(eventTypes[0])">
-                                        <div class="flex flex-col gap-4">
-                                            <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-md">
-                                                <i class="pi pi-shield text-[#ffc107] text-3xl"></i>
-                                            </div>
-                                            <div>
-                                                <h3 class="text-2xl font-black text-surface-900 mb-2">{{ eventTypes[0].label }}</h3>
-                                                <p class="text-surface-800 leading-relaxed text-sm opacity-80">{{ eventTypes[0].description }}</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex justify-end mt-8">
-                                            <div class="w-12 h-12 bg-surface-900 rounded-full flex items-center justify-center text-white transform hover:rotate-45 transition-transform">
-                                                <i class="pi pi-arrow-up-left text-xl"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Small Cards Grid -->
-                                    @for (type of eventTypes.slice(1); track type.label) {
-                                        <div class="mega-card bg-white dark:bg-surface-900 p-5 rounded-[24px] flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group/card cursor-pointer border border-surface-100 dark:border-surface-800"
-                                             (click)="selectEventType(type)">
-                                            <div class="flex flex-col gap-3">
-                                                <div class="w-10 h-10 rounded-xl bg-surface-50 dark:bg-surface-800 flex items-center justify-center group-hover/card:bg-primary/5 transition-colors">
-                                                    <i [class]="type.icon" [style.color]="type.color" class="text-lg"></i>
-                                                </div>
-                                                <div>
-                                                    <h4 class="text-lg font-bold text-surface-900 dark:text-surface-0 mb-1">{{ type.label }}</h4>
-                                                    <p class="text-xs text-surface-500 line-clamp-2 leading-relaxed">{{ type.description }}</p>
-                                                </div>
-                                            </div>
-                                            <div class="flex justify-end mt-4">
-                                                <div class="w-8 h-8 rounded-full border border-surface-200 dark:border-surface-700 flex items-center justify-center text-surface-400 group-hover/card:bg-primary group-hover/card:text-white transition-all transform group-hover/card:rotate-45">
-                                                    <i class="pi pi-arrow-up-left text-[10px]"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Dynamic Selection Label -->
-                <div class="flex items-center gap-3 animate-fadein" *ngIf="selectedEventType">
-                    <div class="flex flex-col items-end">
-                        <span class="text-[10px] font-bold text-primary uppercase tracking-widest leading-none mb-1">النمط المختار</span>
-                        <div class="flex items-center gap-2 px-6 py-2 bg-primary/5 rounded-full border border-primary/20">
-                            <i [class]="selectedIcon" class="text-primary"></i>
-                            <span class="text-base font-black text-primary">{{ selectedEventType }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="grid grid-cols-12 gap-6 pb-24">
                 <div class="col-span-12 lg:col-span-8 flex flex-col gap-6">
                     <div class="card interactive-card shadow-sm border-none animate-slideup delay-100">
@@ -185,9 +104,14 @@ interface AttachmentRow {
                                 <i class="pi pi-info-circle text-primary text-xl"></i>
                                 <h2 class="text-xl font-semibold m-0">تفاصيل الحدث الأساسية</h2>
                             </div>
-                            <span class="px-3 py-1 bg-surface-100 dark:bg-surface-800 rounded text-xs text-surface-600" *ngIf="selectedEventType">
-                                النوع المختار: <strong>{{ selectedEventType }}</strong>
-                            </span>
+                            <!-- Selected Pattern Label -->
+                            <div class="flex items-center gap-2" *ngIf="selectedEventType">
+                                <span class="text-xs font-bold text-surface-500 uppercase">نوع الحدث:</span>
+                                <div class="flex items-center gap-1.5 px-3 py-1 bg-primary/5 rounded-full border border-primary/20">
+                                    <i [class]="selectedIcon" class="text-primary text-xs"></i>
+                                    <span class="text-sm font-bold text-primary">{{ selectedEventType }}</span>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="grid grid-cols-12 gap-x-6 gap-y-4">
@@ -597,7 +521,7 @@ interface AttachmentRow {
         }
     `]
 })
-export class CreateEvent implements AfterViewInit {
+export class CreateEvent implements OnInit, AfterViewInit {
     @ViewChild('mapContainer') mapElement!: ElementRef;
     map!: L.Map;
     marker?: L.Marker;
@@ -652,10 +576,25 @@ export class CreateEvent implements AfterViewInit {
     private allSourceMu = [' العسكرية', 'الأمن الوطني'];
 
     constructor(
+        private route: ActivatedRoute,
         private messageService: MessageService,
         private cd: ChangeDetectorRef
     ) {
         this.loadDraftsFromStorage();
+    }
+
+    ngOnInit() {
+        this.route.queryParams.subscribe(params => {
+            const typeLabel = params['type'];
+            if (typeLabel) {
+                const typeObj = this.eventTypes.find(t => t.label === typeLabel);
+                if (typeObj) {
+                    this.selectedEventType = typeObj.label;
+                    this.selectedIcon = typeObj.icon;
+                    this.cd.detectChanges();
+                }
+            }
+        });
     }
 
     ngAfterViewInit() {
