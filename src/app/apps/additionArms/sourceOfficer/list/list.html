@@ -1,0 +1,92 @@
+        <div class="card" dir="rtl">
+            <p-toast />
+            <p-confirmdialog />
+
+            <div class="flex flex-col gap-2 mb-6">
+                <div class="text-xl font-semibold text-surface-900 dark:text-surface-0">جدول ضباط المصدر</div>
+                <div class="text-surface-600 dark:text-surface-300 text-sm">عرض ضباط المصدر (UI فقط).</div>
+            </div>
+
+            <p-divider />
+
+            <p-toolbar styleClass="mb-6">
+                <ng-template #start>
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <p-button
+                            label="إضافة ضابط"
+                            icon="pi pi-plus"
+                            severity="success"
+                            [routerLink]="['/apps/additionArms/sourceOfficer/create']"
+                        />
+
+                        <p-multiselect
+                            [options]="allColumns"
+                            optionLabel="header"
+                            [(ngModel)]="visibleColumns"
+                            display="chip"
+                            placeholder="الأعمدة"
+                        />
+                    </div>
+                </ng-template>
+
+                <ng-template #end>
+                    <p-iconfield>
+                        <p-inputicon styleClass="pi pi-search" />
+                        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="البحث ..." />
+                    </p-iconfield>
+                </ng-template>
+            </p-toolbar>
+
+            <p-table
+                #dt
+                [value]="items()"
+                [rows]="20"
+                [paginator]="true"
+                [rowHover]="true"
+                dataKey="id"
+                [showGridlines]="true"
+                [globalFilterFields]="globalFilterFields"
+                [tableStyle]="{ 'min-width': '80rem' }"
+                currentPageReportTemplate="عرض {first} إلى {last} من {totalRecords}"
+                [showCurrentPageReport]="true"
+                [rowsPerPageOptions]="[20, 50, 100]"
+            >
+                <ng-template #header>
+                    <tr>
+                        <th style="width: 10rem">تعديل / حذف</th>
+                        <th style="width: 5rem">التسلسل</th>
+                        <ng-container *ngFor="let col of visibleColumns">
+                            <th [style.width]="col.width || null">{{ col.header }}</th>
+                        </ng-container>
+                    </tr>
+                </ng-template>
+
+                <ng-template #body let-row let-rowIndex="rowIndex">
+                    <tr>
+                        <td>
+                            <div class="flex gap-2 justify-end">
+                                <p-button
+                                    icon="pi pi-pencil"
+                                    severity="secondary"
+                                    [text]="true"
+                                    [routerLink]="['/apps/additionArms/sourceOfficer/create']"
+                                    [queryParams]="{ id: row.id }"
+                                />
+                                <p-button icon="pi pi-trash" severity="danger" [text]="true" (onClick)="confirmDelete(row)" />
+                            </div>
+                        </td>
+                        <td>{{ rowIndex + 1 }}</td>
+
+                        <ng-container *ngFor="let col of visibleColumns">
+                            <td>{{ valueByField(row, col.field) }}</td>
+                        </ng-container>
+                    </tr>
+                </ng-template>
+
+                <ng-template #emptymessage>
+                    <tr>
+                        <td [attr.colspan]="2 + visibleColumns.length" class="text-center text-surface-600 dark:text-surface-300">لا توجد بيانات</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>

@@ -8,27 +8,27 @@ export default [
     },
     {
         path: 'create',
-        loadComponent: () => import('./create').then((c) => c.CreateEvent),
+        loadComponent: () => import('./create/create').then((c) => c.CreateEvent),
         data: { breadcrumb: 'إضافة حدث' }
     },
     {
         path: 'list',
-        loadComponent: () => import('./list').then((c) => c.EventsList),
+        loadComponent: () => import('./list/list').then((c) => c.EventsList),
         data: { breadcrumb: 'جدول الأحداث' }
     },
     {
         path: 'check',
-        loadComponent: () => import('./check').then((c) => c.EventsCheck),
+        loadComponent: () => import('./check/check').then((c) => c.EventsCheck),
         data: { breadcrumb: 'تدقيق' }
     },
     {
         path: 'completing',
-        loadComponent: () => import('./completing').then((c) => c.EventsCompleting),
+        loadComponent: () => import('./completing/completing').then((c) => c.EventsCompleting),
         data: { breadcrumb: 'استكمال' }
     },
     {
         path: 'refused',
-        loadComponent: () => import('./refused').then((c) => c.EventsRefused),
+        loadComponent: () => import('./refused/refused').then((c) => c.EventsRefused),
         data: { breadcrumb: 'الأحداث المرفوضة' }
     }
 ] as Routes;

@@ -8,12 +8,12 @@ export default [
     },
     {
         path: 'list',
-        loadComponent: () => import('./additionsFile/list').then((c) => c.AdditionArmsList),
+        loadComponent: () => import('./additionsFile/list/list').then((c) => c.AdditionArmsList),
         data: { breadcrumb: 'جدول اذرع الجمع' }
     },
     {
         path: 'create',
-        loadComponent: () => import('./additionsFile/create').then((c) => c.AdditionArmsCreate),
+        loadComponent: () => import('./additionsFile/create/create').then((c) => c.AdditionArmsCreate),
         data: { breadcrumb: 'اضافة ذراع جمع' }
     },
     {
@@ -23,12 +23,12 @@ export default [
             { path: '', pathMatch: 'full', redirectTo: 'list' },
             {
                 path: 'list',
-                loadComponent: () => import('./sourceOfficer/list').then((c) => c.SourceOfficerList),
+                loadComponent: () => import('./sourceOfficer/list/list').then((c) => c.SourceOfficerList),
                 data: { breadcrumb: 'جدول ضباط المصدر' }
             },
             {
                 path: 'create',
-                loadComponent: () => import('./sourceOfficer/create').then((c) => c.SourceOfficerCreate),
+                loadComponent: () => import('./sourceOfficer/create/create').then((c) => c.SourceOfficerCreate),
                 data: { breadcrumb: 'ضابط المصدر' }
             }
         ]

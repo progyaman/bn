@@ -1,0 +1,141 @@
+<div dir="rtl">
+    <p-toast />
+    <p-confirmdialog [style]="{ width: '420px' }" />
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div>
+            <div class="text-2xl font-semibold text-surface-900 dark:text-surface-0">الدراسات</div>
+            <div class="text-sm text-surface-600 dark:text-surface-300">قائمة الدراسات</div>
+        </div>
+        <div class="flex gap-2">
+            <a class="p-button p-component" routerLink="/study/create">
+                <span class="p-button-icon pi pi-plus"></span>
+                <span class="p-button-label">إضافة دراسة</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-0">
+        <div class="grid grid-cols-12 gap-3 mb-3">
+            <div class="col-span-12 md:col-span-5">
+                <span class="p-input-icon-left w-full">
+                    <i class="pi pi-search"></i>
+                    <input pInputText [(ngModel)]="q" placeholder="البحث ..." class="w-full" />
+                </span>
+            </div>
+            <div class="col-span-12 md:col-span-4">
+                <p-select
+                    [(ngModel)]="selectedStudyTypeName"
+                    [options]="studyTypeNames"
+                    placeholder="نوع الدراسة (الكل)"
+                    class="w-full"
+                />
+            </div>
+            <div class="col-span-12 md:col-span-3">
+                <p-datepicker [(ngModel)]="dateRange" selectionMode="range" [showButtonBar]="true" class="w-full" />
+            </div>
+        </div>
+
+        <p-table
+            [value]="filtered()"
+            [paginator]="true"
+            [rows]="10"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            responsiveLayout="scroll"
+            showGridlines="true"
+            stripedRows="true"
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th class="w-24">ت</th>
+                    <th class="w-44">تعديل / حذف / مرفقات</th>
+                    <th class="w-32">الرقم الأحصائي</th>
+                    <th>اسم الدراسة</th>
+                    <th class="w-48">نوع الدراسة</th>
+                    <th class="w-64">مكان الأصدار</th>
+                    <th class="w-52">التاريخ</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-row let-i="rowIndex">
+                <tr>
+                    <td>{{ i + 1 }}</td>
+                    <td>
+                        <div class="flex gap-2">
+                            <a
+                                class="p-button p-component p-button-rounded p-button-text"
+                                [routerLink]="'/study/create'"
+                                [queryParams]="{ id: row.id }"
+                                title="تعديل"
+                            >
+                                <span class="p-button-icon pi pi-pencil"></span>
+                            </a>
+                            <button
+                                type="button"
+                                class="p-button p-component p-button-rounded p-button-text p-button-danger"
+                                (click)="confirmDelete(row)"
+                                title="حذف"
+                            >
+                                <span class="p-button-icon pi pi-trash"></span>
+                            </button>
+                            <button
+                                type="button"
+                                class="p-button p-component p-button-rounded p-button-text"
+                                (click)="openAttachments(row)"
+                                title="المرفقات"
+                            >
+                                <span class="p-button-icon pi pi-eye"></span>
+                            </button>
+                        </div>
+                    </td>
+                    <td>{{ row.id }}</td>
+                    <td>{{ row.name }}</td>
+                    <td>{{ row.studyType.name }}</td>
+                    <td>{{ row.placeIssue }}</td>
+                    <td>{{ row.date ? (row.date | date : 'yyyy-MM-dd') : '-' }}</td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="7" class="text-center">لا توجد دراسات</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <p-dialog header="المرفقات" [(visible)]="attachmentsDialogOpen" [modal]="true" [style]="{ width: '750px' }">
+        <div class="mb-3" *ngIf="selected()">
+            <div class="text-sm text-surface-600 dark:text-surface-300">الدراسة</div>
+            <div class="text-lg font-semibold">{{ selected()?.name }}</div>
+        </div>
+
+        <p-table [value]="selected()?.uploadFiles ?? []" [paginator]="true" [rows]="5" responsiveLayout="scroll" showGridlines="true" stripedRows="true">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th class="w-20">ت</th>
+                    <th>اسم المرفق</th>
+                    <th class="w-40">الحجم</th>
+                    <th class="w-28">رؤية</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-file let-i="rowIndex">
+                <tr>
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ file.pathFile }}</td>
+                    <td>{{ file.size ? ((file.size / 1024) | number) : '-' }} KB</td>
+                    <td>
+                        <button type="button" class="p-button p-component p-button-rounded p-button-text" (click)="fakeView(file)">
+                            <span class="p-button-icon pi pi-eye"></span>
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="4" class="text-center">لا توجد مرفقات</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-dialog>
+</div>

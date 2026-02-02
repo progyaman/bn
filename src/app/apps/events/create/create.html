@@ -1,0 +1,349 @@
+        <div class="page-container animate-fadein" dir="rtl">
+            <p-toast position="top-left" />
+            <app-event-type-sidebar #typeSidebar (actionClicked)="handleEventTypeAction($event)" class="hidden" />
+            
+            <div class="grid grid-cols-12 gap-6 pb-24">
+                <div class="col-span-12 lg:col-span-8 flex flex-col gap-6">
+                    <div class="card interactive-card shadow-sm border-none animate-slideup delay-100">
+                        <div class="flex items-center justify-between mb-6 border-b pb-4 border-sky-200 dark:border-sky-300">
+                            <div class="flex items-center gap-2">
+                                <i class="pi pi-info-circle text-primary text-xl"></i>
+                                <h2 class="text-xl font-semibold m-0">تفاصيل الحدث الأساسية</h2>
+                            </div>
+                            <!-- Selected Pattern Label -->
+                            <div class="flex items-center gap-2" *ngIf="selectedEventType">
+                                <span class="text-xs font-bold text-surface-500 uppercase">نوع الحدث:</span>
+                                <div class="flex items-center gap-1.5 px-3 py-1 bg-primary/5 rounded-full border border-primary/20">
+                                    <i [class]="selectedIcon" class="text-primary text-xs"></i>
+                                    <span class="text-sm font-bold text-primary">{{ selectedEventType }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-12 gap-x-6 gap-y-4">
+                            <div class="col-span-12 md:col-span-3 field-container">
+                                <label class="field-label mandatory">التنظيم</label>
+                                <p-select [(ngModel)]="model.activityType" [options]="activityTypes" appendTo="body" placeholder="اختر التنظيم" class="w-full custom-select" pTooltip="حدد التصنيف العام لهذا الحدث" />
+                            </div>
+
+                            <div class="col-span-12 md:col-span-3 field-container">
+                                <label class="field-label">نوع النشاط</label>
+                                <p-multiselect
+                                    [(ngModel)]="model.typeOrgNames"
+                                    [options]="typeOrgNameOptions"
+                                    appendTo="body"
+                                    defaultLabel="اختر نوع أو أكثر"
+                                    [showToggleAll]="true"
+                                    display="chip"
+                                    class="w-full"
+                                />
+                            </div>
+
+                            <div class="col-span-12 md:col-span-3 field-container">
+                                <label class="field-label">تاريخ الحدث</label>
+                                <p-datepicker appendTo="body" [(ngModel)]="model.date" dateFormat="yy-mm-dd" [showIcon]="true" class="w-full" placeholder="اختر التاريخ" />
+                            </div>
+
+                            <div class="col-span-12 md:col-span-3 field-container">
+                                <label class="field-label">وقت الحدث</label>
+                                <p-datepicker appendTo="body" [(ngModel)]="model.time" [timeOnly]="true" hourFormat="24" [showIcon]="true" iconDisplay="input" class="w-full" placeholder="00:00" />
+                            </div>
+
+                            <div class="col-span-12 md:col-span-6 field-container">
+                                <label class="field-label mandatory">اسم المهمة أو نوع العملية</label>
+                                <p-select [(ngModel)]="model.missionName" [options]="missionNames" appendTo="body" placeholder="اختر المهمة المعنية" class="w-full" />
+                            </div>
+
+                            <div class="col-span-12 md:col-span-6 field-container">
+                                <label class="field-label">جهة الطلب</label>
+                                <p-autocomplete
+                                    [(ngModel)]="model.requestMu"
+                                    [suggestions]="requestMuSuggestions"
+                                    (completeMethod)="filterRequestMu($event)"
+                                    [dropdown]="true"
+                                    appendTo="body"
+                                    placeholder="ابدأ البحث عن جهة الطلب..."
+                                    class="w-full"
+                                />
+                            </div>
+
+                            <div class="col-span-12 md:col-span-6 field-container">
+                                <label class="field-label">تبعية المنجز</label>
+                                <p-select [(ngModel)]="model.tab3yeaAlMonjaz" [options]="tab3yeaOptions" appendTo="body" placeholder="حدد التبعية" class="w-full" />
+                            </div>
+
+                            <div class="col-span-12 md:col-span-6 field-container">
+                                <label class="field-label">الجهة المنفذة او المستهدفة</label>
+                                <p-select [(ngModel)]="model.targetEntity" [options]="organizationOptions" appendTo="body" placeholder="اختر الجهة" class="w-full" />
+                            </div>
+
+                            <div class="col-span-12 field-container">
+                                <label class="field-label mandatory">المتن (تفاصيل الخبر أو المعلومة)</label>
+                                <textarea pTextarea [(ngModel)]="model.theNews" rows="6" class="w-full resize-none" placeholder="اكتب تفاصيل الحدث هنا بشكل واضح ومفصل..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card interactive-card shadow-sm border-none animate-slideup delay-200">
+                        <div class="flex items-center mb-6 border-b pb-4 border-sky-200 dark:border-sky-300">
+                            <div class="flex items-center gap-2">
+                                <i class="pi pi-paperclip text-primary text-xl"></i>
+                                <h2 class="text-xl font-semibold m-0">المرفقات والارتباطات</h2>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-12 gap-6">
+                            <div class="col-span-12 md:col-span-6 field-container">
+                                <label class="field-label mb-3">الأرتباط بالهدف</label>
+                                <div class="flex flex-col gap-2">
+                                    <p-multiselect
+                                        [(ngModel)]="model.targets"
+                                        [options]="targetOptions"
+                                        defaultLabel="حدد الأهداف المرتبطة"
+                                        display="chip"
+                                        class="w-full"
+                                    />
+                                    <p-button label="إضافة هدف جديد" icon="pi pi-plus" [text]="true" size="small" (onClick)="onOpenAddTarget()" />
+                                </div>
+                            </div>
+
+                            <div class="col-span-12 md:col-span-6 field-container">
+                                <label class="field-label mb-3">القوات المساندة الأخرى</label>
+                                <p-multiselect
+                                    [(ngModel)]="model.otherHands"
+                                    [options]="otherHandsOptions"
+                                    defaultLabel="اختر الجهات المساندة"
+                                    display="chip"
+                                    class="w-full"
+                                />
+                            </div>
+
+                            <div class="col-span-12">
+                                <p-table [value]="attachments" [showGridlines]="true" styleClass="p-datatable-sm custom-table-modern">
+                                    <ng-template pTemplate="header">
+                                        <tr>
+                                            <th class="text-center" style="width: 80px">النوع</th>
+                                            <th>اسم المرفق</th>
+                                            <th class="text-center" style="width: 150px">الإجراءات</th>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-row>
+                                        <tr class="hover:bg-blue-50/50 transition-colors">
+                                            <td class="text-center">
+                                                <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-surface-100 dark:bg-surface-800 mx-auto">
+                                                    <i [class]="getFileIcon(row.mimeType)" class="text-xl text-primary"></i>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="flex flex-col">
+                                                    <span class="font-bold text-surface-900 dark:text-surface-0">{{ row.name }}</span>
+                                                    <span class="text-xs text-surface-500">{{ row.mimeType || 'ملف غير معروف' }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="flex items-center justify-center gap-2">
+                                                    <p-button *ngIf="row.mimeType?.includes('image')" icon="pi pi-eye" [text]="true" [rounded]="true" severity="info" (onClick)="viewAttachment(row)" pTooltip="مشاهدة" />
+                                                    <p-button icon="pi pi-download" [text]="true" [rounded]="true" severity="secondary" (onClick)="downloadAttachment(row)" pTooltip="تحميل" />
+                                                    <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true" (onClick)="removeAttachment(row)" pTooltip="حذف" />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="emptymessage">
+                                        <tr>
+                                            <td colspan="3">
+                                                <div class="flex flex-col items-center justify-center p-5 text-surface-400">
+                                                    <i class="pi pi-images text-4xl mb-3 opacity-20"></i>
+                                                    <p class="m-0 text-xs">لا توجد مرفقات حالياً.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </ng-template>
+                                </p-table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+                    <div class="card interactive-card shadow-sm border-none bg-surface-50 dark:bg-surface-900 animate-slideup delay-300">
+                        <div class="flex items-center gap-2 mb-6 border-b pb-4 border-sky-200 dark:border-sky-300">
+                            <i class="pi pi-file-edit text-primary text-xl"></i>
+                            <h2 class="text-xl font-semibold m-0">بيانات المصدر</h2>
+                        </div>
+                        <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                            <div class="col-span-2 field-container">
+                                <label class="field-label mandatory">مصدر الخبر</label>
+                                <p-autocomplete [(ngModel)]="model.sourceMu" [suggestions]="sourceMuSuggestions" (completeMethod)="filterSourceMu($event)" [dropdown]="true" appendTo="body" placeholder="بحث الوحدة..." class="w-full" />
+                            </div>
+                            <div class="col-span-2 field-container">
+                                <label class="field-label">رقم كتاب المصدر</label>
+                                <input pInputText type="text" [(ngModel)]="model.numberBook" class="w-full" placeholder="رقم المرجع" />
+                            </div>
+                             <div class="col-span-1 field-container">
+                                <label class="field-label text-xs">اسم الإضافة</label>
+                                <p-select [(ngModel)]="model.nameAdditionArms" [options]="nameAdditionOptions" appendTo="body" placeholder="الإضافة" class="w-full" />
+                            </div>
+                            <div class="col-span-1 field-container">
+                                <label class="field-label text-xs">نوع الإضافة</label>
+                                <p-select [(ngModel)]="model.typeArms" [disabled]="!requiresTypeArms(model.nameAdditionArms)" [options]="typeArmsOptions" appendTo="body" placeholder="النوع" class="w-full" />
+                            </div>
+                            <div class="col-span-1 field-container">
+                                <label class="field-label text-xs">رمز الإضافة</label>
+                                <p-select [(ngModel)]="model.additionArms" [disabled]="!model.typeArms" [options]="additionArmsOptions" appendTo="body" placeholder="الرمز" class="w-full" />
+                            </div>
+                            <div class="col-span-1 field-container">
+                                <label class="field-label text-xs">قوة الأرض</label>
+                                <p-multiselect [(ngModel)]="model.holdingForces" [options]="holdingForceOptions" appendTo="body" defaultLabel="حدد" class="w-full" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card interactive-card shadow-sm border-none overflow-hidden p-0 animate-slideup delay-300">
+                        <div class="p-4 border-b border-sky-200 dark:border-sky-300 bg-white dark:bg-surface-900">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-map-marker text-primary text-xl"></i>
+                                    <h2 class="text-xl font-semibold m-0">الموقع الجغرافي</h2>
+                                </div>
+                                <p-button [label]="showMap ? 'إخفاء الخارطة' : 'تحديد على الخارطة'" [icon]="showMap ? 'pi pi-eye-slash' : 'pi pi-map'" [outlined]="true" size="small" (onClick)="toggleMap()" />
+                            </div>
+                        </div>
+                        <div class="p-3 flex flex-col gap-3">
+                            <div class="flex flex-col gap-2 p-3 bg-primary-50 dark:bg-primary-900/10 rounded-xl border border-primary-100 dark:border-primary-800 transition-all">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-xs font-bold text-primary">الإحداثيات الحالية</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] text-primary-400 tabular-nums">{{ model.coordinates[0] || '--.------' }}</span>
+                                        <div class="w-px h-2 bg-primary-200 mx-1"></div>
+                                        <span class="text-[10px] text-primary-400 tabular-nums">{{ model.coordinates[1] || '--.------' }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-2">
+                                    <i class="pi pi-map-marker text-primary mt-0.5"></i>
+                                    <span class="text-sm font-medium leading-tight text-surface-700 dark:text-surface-300">
+                                        {{ locationPath || 'لم يتم تحديد موقع على الخارطة بعد...' }}
+                                    </span>
+                                </div>
+                            </div>
+                            <p-button 
+                                label="إضافة الإحداثي للجدول" 
+                                icon="pi pi-plus" 
+                                severity="primary" 
+                                [outlined]="true" 
+                                class="w-full"
+                                [disabled]="!locationPath || model.coordinates.length < 2"
+                                (onClick)="addLocationToTable()" />
+                        </div>
+
+                        <div class="map-wrapper" [class.expanded]="showMap">
+                             <div #mapContainer class="map-container"></div>
+                        </div>
+
+                        <!-- Locations Table -->
+                        <div class="p-3 border-t border-sky-200 dark:border-sky-300 bg-surface-50/50" *ngIf="locationRows.length > 0">
+                            <h3 class="text-sm font-bold mb-3 flex items-center gap-2 text-surface-700">
+                                <i class="pi pi-list text-primary"></i>
+                                المواقع المحددة
+                            </h3>
+                            <p-table [value]="locationRows" styleClass="p-datatable-sm custom-locations-table">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th style="width: 3rem"></th>
+                                        <th>المسار</th>
+                                        <th class="text-center">الإحداثيات</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-row>
+                                    <tr>
+                                        <td>
+                                            <p-button icon="pi pi-trash" [text]="true" severity="danger" size="small" (onClick)="removeLocationRow(row)" />
+                                        </td>
+                                        <td class="text-xs truncate max-w-[150px]" [pTooltip]="row.path">{{ row.path }}</td>
+                                        <td class="text-[10px] tabular-nums text-center text-surface-400">{{ row.coords }}</td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-action-bar flex items-center justify-center p-4">
+                <div class="action-container flex flex-wrap items-center justify-between gap-4 max-w-7xl w-full">
+                    <div class="flex items-center gap-2">
+                        <p-button label="حفظ الحدث" icon="pi pi-check-circle" severity="success" class="action-btn-primary" (onClick)="onSave()" />
+                        <div class="flex items-center gap-1 bg-surface-50 dark:bg-surface-800 p-1 rounded-xl border border-surface-200 dark:border-surface-700">
+                            <p-button label="حفظ كمسودة" icon="pi pi-save" [outlined]="true" severity="secondary" (onClick)="onSaveDraft()" />
+                            <div class="relative">
+                                <p-button (onClick)="showDrafts = true" icon="pi pi-folder-open" [text]="true" severity="secondary" pTooltip="عرض المسودات" />
+                                <span *ngIf="drafts.length > 0" class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white font-bold ring-2 ring-white">
+                                    {{ drafts.length }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <p-button label="المضبوطات" icon="pi pi-briefcase" [text]="true" severity="secondary" (onClick)="onOpenSeizure()" />
+                            <p-button label="إدخال النتائج" icon="pi pi-list" [text]="true" severity="secondary" (onClick)="onOpenResults()" />
+                            <p-fileupload name="attachments" mode="basic" chooseLabel="رفع مرفق" chooseIcon="pi pi-upload" [auto]="true" [multiple]="true" styleClass="p-button-text p-button-secondary" (onSelect)="onFilesSelected($event)" />
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="hidden sm:flex flex-col items-end">
+                            <span class="text-xs text-surface-500 uppercase tracking-wider font-bold">اكتمال النموذج</span>
+                            <div class="flex items-center gap-3">
+                                <div class="h-2.5 w-40 bg-sky-200 dark:bg-sky-300 rounded-full overflow-hidden progress-glow">
+                                    <div class="h-full bg-primary transition-all duration-1000 ease-in-out relative" [style.width]="calcProgress() + '%'"></div>
+                                </div>
+                                <span class="text-base font-bold text-primary tabular-nums">{{ calcProgress() }}%</span>
+                            </div>
+                        </div>
+                        <p-button label="جدول الأحداث" icon="pi pi-list" [text]="true" severity="secondary" routerLink="/apps/events/list" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Drafts Dialog -->
+            <p-dialog [(visible)]="showDrafts" header="المسودات المحفوظة" [modal]="true" [style]="{ width: '70vw' }" [breakpoints]="{ '1199px': '85vw', '575px': '95vw' }" [draggable]="false" [resizable]="false" appendTo="body">
+                <div class="p-2" dir="rtl">
+                    <p-table [value]="drafts" [rows]="5" [paginator]="true" styleClass="p-datatable-sm custom-table-modern">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th>المهمة / الخبر</th>
+                                <th>تاريخ الحفظ</th>
+                                <th class="text-center" style="width: 150px">الإجراءات</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-draft>
+                            <tr>
+                                <td>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-surface-900">{{ draft.missionName || 'بدون عنوان' }}</span>
+                                        <span class="text-xs text-surface-500 truncate max-w-xs">{{ draft.newsPreview || 'لا يوجد متن...' }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-sm text-surface-600">{{ draft.timestamp | date:'yyyy-MM-dd HH:mm' }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <p-button icon="pi pi-external-link" [text]="true" severity="primary" size="small" (onClick)="loadDraft(draft)" pTooltip="استرجاع" />
+                                        <p-button icon="pi pi-trash" [text]="true" severity="danger" size="small" (onClick)="deleteDraft(draft)" pTooltip="حذف" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                            <tr>
+                                <td colspan="3">
+                                    <div class="flex flex-col items-center justify-center p-8 text-surface-400">
+                                        <i class="pi pi-save text-5xl mb-4 opacity-20"></i>
+                                        <p class="m-0">لا توجد مسودات محفوظة حالياً.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </div>
+            </p-dialog>
+        </div>

@@ -1,0 +1,202 @@
+        <div class="card" dir="rtl">
+            <div class="flex flex-col gap-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="text-xl font-semibold text-surface-900 dark:text-surface-0">ضابط المصدر</div>
+                    <div class="flex flex-wrap gap-2">
+                        <p-button label="حفظ" icon="pi pi-save" severity="success" (onClick)="save()" />
+                        <p-button label="إلغاء" icon="pi pi-times" severity="secondary" [text]="true" [routerLink]="['/apps/additionArms/sourceOfficer/list']" />
+                    </div>
+                </div>
+
+                <div class="card mb-0">
+                    <div class="text-lg font-semibold text-surface-900 dark:text-surface-0 mb-4">معلومات ضابط المصدر</div>
+
+                    <div class="grid grid-cols-12 gap-4">
+                        <div class="col-span-12 md:col-span-3">
+                            <label class="block font-medium mb-2">الكنية</label>
+                            <input pInputText class="w-full" [(ngModel)]="model().officer_nickName" />
+                            <small class="text-red-500" *ngIf="submitted() && !model().officer_nickName.trim()">يرجى ملئ حقل الكنية</small>
+                        </div>
+                        <div class="col-span-12 md:col-span-3">
+                            <label class="block font-medium mb-2">الأسم</label>
+                            <input pInputText class="w-full" [(ngModel)]="model().name" />
+                            <small class="text-red-500" *ngIf="submitted() && !model().name.trim()">يرجى ملئ حقل الاسم</small>
+                        </div>
+                        <div class="col-span-12 md:col-span-3">
+                            <label class="block font-medium mb-2">أسم الاب</label>
+                            <input pInputText class="w-full" [(ngModel)]="model().fatherName" />
+                            <small class="text-red-500" *ngIf="submitted() && !model().fatherName.trim()">يرجى ملئ حقل اسم الأب</small>
+                        </div>
+                        <div class="col-span-12 md:col-span-3">
+                            <label class="block font-medium mb-2">أسم الجد</label>
+                            <input pInputText class="w-full" [(ngModel)]="model().grandFatherName" />
+                            <small class="text-red-500" *ngIf="submitted() && !model().grandFatherName.trim()">يرجى ملئ حقل اسم الجد</small>
+                        </div>
+
+                        <div class="col-span-12 md:col-span-3">
+                            <label class="block font-medium mb-2">أسم الرابع</label>
+                            <input pInputText class="w-full" [(ngModel)]="model().great_grandFather" />
+                            <small class="text-red-500" *ngIf="submitted() && !model().great_grandFather.trim()">يرجى ملئ حقل الاسم</small>
+                        </div>
+                        <div class="col-span-12 md:col-span-3">
+                            <label class="block font-medium mb-2">اللقب</label>
+                            <input pInputText class="w-full" [(ngModel)]="model().officer_sureName" />
+                            <small class="text-red-500" *ngIf="submitted() && !model().officer_sureName.trim()">يرجى ملئ حقل اللقب</small>
+                        </div>
+                        <div class="col-span-12 md:col-span-3">
+                            <label class="block font-medium mb-2">رمز ضابط المصدر</label>
+                            <input pInputText class="w-full" [(ngModel)]="model().sourceSymbol" />
+                            <small class="text-red-500" *ngIf="submitted() && !model().sourceSymbol.trim()">يرجى ملئ حقل الرمز</small>
+                        </div>
+                        <div class="col-span-12 md:col-span-3">
+                            <label class="block font-medium mb-2">رقم الهاتف</label>
+                            <input
+                                pInputText
+                                class="w-full"
+                                [(ngModel)]="model().phoneNumber"
+                                inputmode="numeric"
+                                (input)="sanitizePhone()"
+                                maxlength="11"
+                                placeholder="أدخل رقم الهاتف"
+                            />
+                            <small class="text-red-500" *ngIf="submitted() && !model().phoneNumber.trim()">يرجى ملئ حقل رقم الهاتف</small>
+                        </div>
+
+                        <div class="col-span-12 md:col-span-6">
+                            <div class="flex items-center gap-2 mb-2">
+                                <label class="block font-medium">العائدية</label>
+                                <p-button icon="pi pi-info" [rounded]="true" [text]="true" />
+                            </div>
+                            <p-autocomplete
+                                [(ngModel)]="model().source_officer_mu"
+                                [suggestions]="muSuggestions()"
+                                (completeMethod)="filterMu($event)"
+                                [dropdown]="true"
+                                [forceSelection]="true"
+                                [minLength]="3"
+                                optionLabel="path"
+                                placeholder="بحث... يبدء من سلسلة 3"
+                                class="w-full"
+                            />
+                            <small class="text-red-500" *ngIf="submitted() && !model().source_officer_mu">يرجى ملئ حقل العائدية</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-0">
+                    <div class="text-lg font-semibold text-surface-900 dark:text-surface-0 mb-4">منطقة الانتشار</div>
+
+                    <div class="grid grid-cols-12 gap-4">
+                        <div class="col-span-12 md:col-span-4">
+                            <label class="block font-medium mb-2">الدولة</label>
+                            <p-select
+                                [(ngModel)]="model().country"
+                                [options]="countries"
+                                optionLabel="name"
+                                placeholder="يرجى الأختيار"
+                                class="w-full"
+                                (onChange)="onCountryChange()"
+                            />
+                            <small class="text-red-500" *ngIf="submitted() && !model().country">يرجى ملئ حقل الدولة</small>
+                        </div>
+
+                        <div class="col-span-12 md:col-span-4">
+                            <label class="block font-medium mb-2">المحافظة</label>
+                            <p-select
+                                [(ngModel)]="model().city"
+                                [options]="citiesFiltered()"
+                                optionLabel="name"
+                                placeholder="يرجى الأختيار"
+                                class="w-full"
+                                (onChange)="onCityChange()"
+                                [showClear]="true"
+                            />
+                        </div>
+
+                        <div class="col-span-12 md:col-span-4">
+                            <label class="block font-medium mb-2">القضاء</label>
+                            <p-select
+                                [(ngModel)]="model().district"
+                                [options]="districtsFiltered()"
+                                optionLabel="name"
+                                placeholder="يرجى الأختيار"
+                                class="w-full"
+                                (onChange)="onDistrictChange()"
+                                [showClear]="true"
+                            />
+                        </div>
+
+                        <div class="col-span-12 md:col-span-4">
+                            <label class="block font-medium mb-2">الناحية</label>
+                            <p-select
+                                [(ngModel)]="model().handDistrict"
+                                [options]="handDistrictsFiltered()"
+                                optionLabel="name"
+                                placeholder="يرجى الأختيار"
+                                class="w-full"
+                                [showClear]="true"
+                            />
+                        </div>
+
+                        <div class="col-span-12 md:col-span-4">
+                            <label class="block font-medium mb-2">المنطقة</label>
+                            <input pInputText class="w-full" [(ngModel)]="model().neighbourhood" maxlength="250" />
+                        </div>
+
+                        <div class="col-span-12">
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <label class="block font-medium">الأحداثي الجغرافي</label>
+                                <p-button icon="pi pi-plus" label="إضافة" (onClick)="openCoordinateDialog()" />
+                            </div>
+
+                            <p-autocomplete
+                                [(ngModel)]="selectedCoordinates"
+                                [suggestions]="coordinateSuggestions()"
+                                (completeMethod)="filterCoordinates($event)"
+                                [dropdown]="true"
+                                [multiple]="true"
+                                optionLabel="name"
+                                [minLength]="3"
+                                placeholder="بحث... يبدء من سلسلة 3"
+                                class="w-full"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p-dialog [(visible)]="coordinateDialog" header="اضافة الأحداثي الجغرافي" [modal]="true" [draggable]="false" [resizable]="false" [style]="{ width: '34rem' }">
+                <div class="flex flex-col gap-4" dir="rtl">
+                    <div>
+                        <label class="block font-medium mb-2">اسم الأحداثي الجغرافي</label>
+                        <p-inputMask
+                            mask="99a aa 99999 99999"
+                            [(ngModel)]="coordinateDraftName"
+                            [unmask]="false"
+                            placeholder="12A AA 12345 12345"
+                            styleClass="w-full"
+                        />
+                        <small class="text-red-500" *ngIf="coordinateSubmitted && !coordinateDraftName.trim()">يجب ملئ الحقل</small>
+                    </div>
+
+                    <div>
+                        <label class="block font-medium mb-2">نوع الأحداثي</label>
+                        <p-select
+                            [(ngModel)]="coordinateDraftType"
+                            [options]="coordinateTypes"
+                            optionLabel="typeName"
+                            placeholder="يرجى الأختيار"
+                            class="w-full"
+                        />
+                        <small class="text-red-500" *ngIf="coordinateSubmitted && !coordinateDraftType">يرجى الأختيار</small>
+                    </div>
+
+                    <p-divider />
+
+                    <div class="flex justify-end gap-2">
+                        <p-button label="حفظ" icon="pi pi-check" (onClick)="saveCoordinate()" />
+                        <p-button label="الغاء" icon="pi pi-times" severity="secondary" [text]="true" (onClick)="coordinateDialog = false" />
+                    </div>
+                </div>
+            </p-dialog>
+        </div>

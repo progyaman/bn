@@ -1,0 +1,429 @@
+        <div class="page-container animate-fadein" dir="rtl">
+            <!-- Header Section -->
+            <div class="page-header mb-6 relative min-h-[50px]">
+                <div class="flex items-center gap-3">
+                    <i class="pi pi-plus-circle text-primary text-3xl"></i>
+                    <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0 m-0">اضافة ذراع جمع</h1>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-12 gap-6 pb-24">
+                <!-- Main Form Area -->
+                <div class="col-span-12 lg:col-span-8 flex flex-col gap-6">
+                    <!-- Collection Info Card -->
+                    <div class="card interactive-card shadow-sm border-none animate-slideup delay-100">
+                        <div class="flex items-center gap-2 mb-6 border-b pb-4 border-sky-200 dark:border-sky-300">
+                            <i class="pi pi-info-circle text-primary text-xl"></i>
+                            <h2 class="text-xl font-semibold m-0">معلومات الجمع</h2>
+                        </div>
+
+                        <div class="grid grid-cols-12 gap-x-6 gap-y-4">
+                            <div class="col-span-12 md:col-span-4 field-container">
+                                <label class="field-label mandatory">صنف الذراع</label>
+                                <p-select
+                                    class="w-full"
+                                    [(ngModel)]="model().armsKind"
+                                    [options]="armsKinds"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    placeholder="يرجى الاختيار"
+                                    [filter]="true"
+                                    filterBy="label"
+                                    (ngModelChange)="onArmsKindChanged()"
+                                ></p-select>
+                                <small class="text-red-500" *ngIf="submitted() && !model().armsKind">يرجى الإختيار</small>
+                            </div>
+
+                            <div class="col-span-12 md:col-span-4 field-container">
+                                <label class="field-label mandatory">النوع</label>
+                                <div class="flex gap-2">
+                                    <p-select
+                                        class="w-full"
+                                        [(ngModel)]="model().typeArms"
+                                        [options]="typeArmsOptions()"
+                                        optionLabel="label"
+                                        optionValue="value"
+                                        placeholder="يرجى الاختيار"
+                                        [filter]="true"
+                                        filterBy="label"
+                                    ></p-select>
+                                    <p-button
+                                        icon="pi pi-plus"
+                                        severity="secondary"
+                                        [outlined]="true"
+                                        (onClick)="openTypeArmsDialog()"
+                                        [disabled]="!model().armsKind"
+                                        pTooltip="إضافة نوع"
+                                    />
+                                    <p-button
+                                        icon="pi pi-trash"
+                                        severity="danger"
+                                        [outlined]="true"
+                                        (onClick)="removeSelectedTypeArms()"
+                                        [disabled]="!model().typeArms"
+                                        pTooltip="حذف النوع"
+                                    />
+                                </div>
+                                <small class="text-red-500" *ngIf="submitted() && !model().typeArms">يرجى اختيار النوع</small>
+                            </div>
+
+                            <div class="col-span-12 md:col-span-4 field-container" *ngIf="model().armsKind !== 'مصدر بشري'">
+                                <label class="field-label">العائدية</label>
+                                <p-autocomplete
+                                    class="w-full"
+                                    [(ngModel)]="model().dependencyMu"
+                                    [suggestions]="muSuggestions()"
+                                    (completeMethod)="searchMu($event)"
+                                    [forceSelection]="true"
+                                    [dropdown]="false"
+                                    optionLabel="path"
+                                    placeholder="بحث... يبدأ من 3 أحرف"
+                                ></p-autocomplete>
+                            </div>
+
+                            <div class="col-span-12 md:col-span-4 field-container">
+                                <label class="field-label mandatory">رمز المصدر الاول</label>
+                                <input pInputText class="w-full" [(ngModel)]="model().firstSymbol" maxlength="250" placeholder="رمز المصدر الأول" />
+                                <small class="text-red-500" *ngIf="submitted() && !model().firstSymbol.trim()">يرجى ملئ رمز المصدر الأول</small>
+                            </div>
+
+                            <div class="col-span-12 md:col-span-4 field-container">
+                                <label class="field-label mandatory">الموثوقية</label>
+                                <p-select
+                                    class="w-full"
+                                    [(ngModel)]="model().reliability"
+                                    [options]="reliabilityOptions"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    placeholder="يرجى الاختيار"
+                                ></p-select>
+                                <small class="text-red-500" *ngIf="submitted() && !model().reliability">يرجى الإختيار الموثوقية</small>
+                            </div>
+
+                            <div class="col-span-12 md:col-span-4 field-container">
+                                <label class="field-label mandatory">الحالة</label>
+                                <p-select
+                                    class="w-full"
+                                    [(ngModel)]="model().state"
+                                    [options]="stateOptions"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    placeholder="يرجى الاختيار"
+                                ></p-select>
+                                <small class="text-red-500" *ngIf="submitted() && !model().state">يرجى الإختيار الحالة</small>
+                            </div>
+
+                            <div class="col-span-12 md:col-span-6 field-container">
+                                <label class="field-label">الملف العسكري</label>
+                                <p-multiselect
+                                    class="w-full"
+                                    [options]="securityFiles"
+                                    optionLabel="name"
+                                    [(ngModel)]="model().securityFiles"
+                                    [filter]="true"
+                                    filterBy="name"
+                                    placeholder="يرجى الاختيار"
+                                    [disabled]="model().armsKind === 'فني'"
+                                ></p-multiselect>
+                            </div>
+
+                            <div class="col-span-12 md:col-span-6 field-container">
+                                <label class="field-label mandatory">رمز ضابط المصدر</label>
+                                <p-select
+                                    class="w-full"
+                                    [(ngModel)]="model().sourceOfficer"
+                                    [options]="sourceOfficers"
+                                    optionLabel="sourceSymbol"
+                                    placeholder="يرجى الاختيار"
+                                    [filter]="true"
+                                    filterBy="sourceSymbol"
+                                    [showClear]="true"
+                                ></p-select>
+                                <small class="text-red-500" *ngIf="submitted() && !model().sourceOfficer">يرجى اختيار رمز ضابط المصدر</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Human Info Card -->
+                    <div class="card interactive-card shadow-sm border-none animate-slideup delay-200" *ngIf="model().armsKind !== 'فني'">
+                        <div class="flex items-center gap-2 mb-6 border-b pb-4 border-sky-200 dark:border-sky-300">
+                            <i class="pi pi-users text-primary text-xl"></i>
+                            <h2 class="text-xl font-semibold m-0">معلومات المصدر البشري</h2>
+                        </div>
+
+                        <div class="grid grid-cols-12 gap-x-6 gap-y-4">
+                            <div class="col-span-12 md:col-span-4 field-container">
+                                <label class="field-label">الكنية</label>
+                                <input pInputText class="w-full" [(ngModel)]="model().nickName" maxlength="250" placeholder="الكنية" />
+                            </div>
+                            <div class="col-span-12 md:col-span-4 field-container">
+                                <label class="field-label">الأسم</label>
+                                <input pInputText class="w-full" [(ngModel)]="model().firstName" maxlength="250" placeholder="الأسم" />
+                            </div>
+                            <div class="col-span-12 md:col-span-4 field-container">
+                                <label class="field-label">الأسم الأب</label>
+                                <input pInputText class="w-full" [(ngModel)]="model().secondName" maxlength="250" placeholder="الأسم الأب" />
+                            </div>
+                            <div class="col-span-12 md:col-span-4 field-container">
+                                <label class="field-label">الأسم الجد</label>
+                                <input pInputText class="w-full" [(ngModel)]="model().thirdName" maxlength="250" placeholder="الأسم الجد" />
+                            </div>
+                            <div class="col-span-12 md:col-span-4 field-container">
+                                <label class="field-label">الأسم الرابع</label>
+                                <input pInputText class="w-full" [(ngModel)]="model().fourthName" maxlength="250" placeholder="الأسم الرابع" />
+                            </div>
+                            <div class="col-span-12 md:col-span-4 field-container">
+                                <label class="field-label">اللقب</label>
+                                <input pInputText class="w-full" [(ngModel)]="model().sureName" maxlength="250" placeholder="اللقب" />
+                            </div>
+
+                            <div class="col-span-12 md:col-span-6 field-container">
+                                <label class="field-label">اسم ألام الرباعي</label>
+                                <input pInputText class="w-full" [(ngModel)]="model().fullMotherName" maxlength="250" placeholder="اسم ألام الرباعي" />
+                            </div>
+                            <div class="col-span-12 md:col-span-6 field-container">
+                                <label class="field-label">لقب الأم</label>
+                                <input pInputText class="w-full" [(ngModel)]="model().motherSureName" maxlength="250" placeholder="لقب الأم" />
+                            </div>
+                            <div class="col-span-12 md:col-span-6 field-container">
+                                <label class="field-label mandatory">رمز المصدر الثاني</label>
+                                <input pInputText class="w-full" [(ngModel)]="model().secondSymbol" maxlength="250" placeholder="رمز المصدر الثاني" />
+                                <small class="text-red-500" *ngIf="submitted() && !model().secondSymbol.trim()">يرجى ملئ رمز المصدر الثاني</small>
+                            </div>
+                            <div class="col-span-12 md:col-span-6 field-container">
+                                <label class="field-label">رقم الهاتف</label>
+                                <input
+                                    pInputText
+                                    class="w-full"
+                                    [(ngModel)]="model().phoneNumbers"
+                                    (input)="normalizePhone($event)"
+                                    placeholder="أدخل رقم الهاتف"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attachments Card -->
+                    <div class="card interactive-card shadow-sm border-none animate-slideup delay-300">
+                        <div class="flex items-center gap-2 mb-6 border-b pb-4 border-sky-200 dark:border-sky-300">
+                            <i class="pi pi-paperclip text-primary text-xl"></i>
+                            <h2 class="text-xl font-semibold m-0">المرفقات</h2>
+                        </div>
+
+                        <div class="flex flex-col gap-4">
+                            <p-table [value]="uploads()" [rows]="10" [paginator]="true" styleClass="p-datatable-sm custom-table-modern">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th class="text-center" style="width: 80px">الإجراءات</th>
+                                        <th>اسم الملف</th>
+                                        <th style="width: 14rem">صيغة المرفق</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-row>
+                                    <tr class="hover:bg-blue-50/50 transition-colors">
+                                        <td class="text-center">
+                                            <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true" (onClick)="removeUpload(row)" pTooltip="حذف" />
+                                        </td>
+                                        <td class="font-bold text-surface-900 dark:text-surface-0">{{ row.name }}</td>
+                                        <td class="text-surface-500">{{ row.type || '-' }}</td>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="emptymessage">
+                                    <tr>
+                                        <td colspan="3">
+                                            <div class="flex flex-col items-center justify-center p-5 text-surface-400">
+                                                <i class="pi pi-images text-4xl mb-3 opacity-20"></i>
+                                                <p class="m-0 text-xs">لا توجد مرفقات حالياً.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+                    <!-- Geolocation Card -->
+                    <div class="card interactive-card shadow-sm border-none overflow-hidden p-0 animate-slideup delay-300">
+                        <div class="p-4 border-b border-sky-200 dark:border-sky-300 bg-white dark:bg-surface-900">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-map text-primary text-xl"></i>
+                                    <h2 class="text-xl font-semibold m-0">تحديد الموقع الجغرافي</h2>
+                                </div>
+                                <p-button 
+                                    [label]="showMap ? 'إخفاء الخارطة' : 'تحديد على الخارطة'" 
+                                    [icon]="showMap ? 'pi pi-eye-slash' : 'pi pi-map'" 
+                                    [outlined]="true" 
+                                    size="small"
+                                    (onClick)="toggleMap()"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="p-3 flex flex-col gap-4">
+                            <!-- Location Mode Selector -->
+                            <div class="flex p-1 bg-surface-100 dark:bg-surface-800 rounded-xl">
+                                <button 
+                                    type="button"
+                                    class="flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg transition-all duration-300 font-bold text-sm"
+                                    [class]="locationMode() === 'spreading' ? 'bg-primary text-white shadow-md' : 'text-surface-500 hover:bg-surface-200 dark:hover:bg-surface-700'"
+                                    (click)="locationMode.set('spreading')"
+                                >
+                                    <i class="pi pi-share-alt"></i>
+                                    منطقة الأنتشار
+                                </button>
+                                <button 
+                                    type="button"
+                                    class="flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg transition-all duration-300 font-bold text-sm"
+                                    [class]="locationMode() === 'residential' ? 'bg-orange-500 text-white shadow-md' : 'text-surface-500 hover:bg-surface-200 dark:hover:bg-surface-700'"
+                                    (click)="locationMode.set('residential')"
+                                >
+                                    <i class="pi pi-home"></i>
+                                    عنوان السكن
+                                </button>
+                            </div>
+
+                            <!-- Spreading Display -->
+                            <div class="flex flex-col gap-2 p-3 bg-primary-50 dark:bg-primary-900/10 rounded-xl border border-primary-100 dark:border-primary-800" [class.opacity-50]="locationMode() !== 'spreading'">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-xs font-bold text-primary">إحداثيات الانتشار</span>
+                                    <span class="text-[10px] text-primary-400 tabular-nums">{{ mapCoordinates()[0] || '--.---' }}, {{ mapCoordinates()[1] || '--.---' }}</span>
+                                </div>
+                                <div class="flex items-start gap-2">
+                                    <i class="pi pi-map-marker text-primary mt-0.5"></i>
+                                    <span class="text-sm font-medium leading-tight text-surface-700 dark:text-surface-300">
+                                        {{ spreadingPath() || 'لم يتم تحديد موقع على الخارطة بعد...' }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Residential Display -->
+                            <div class="flex flex-col gap-2 p-3 bg-orange-50 dark:bg-orange-900/10 rounded-xl border border-orange-100 dark:border-orange-800" [class.opacity-50]="locationMode() !== 'residential'">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-xs font-bold text-orange-600">إحداثيات السكن</span>
+                                    <span class="text-[10px] text-orange-400 tabular-nums">{{ residentialCoords()[0] || '--.---' }}, {{ residentialCoords()[1] || '--.---' }}</span>
+                                </div>
+                                <div class="flex items-start gap-2">
+                                    <i class="pi pi-compass text-orange-500 mt-0.5"></i>
+                                    <span class="text-sm font-medium leading-tight text-surface-700 dark:text-surface-300">
+                                        {{ residentialPath() || 'لم يتم تحديد موقع على الخارطة بعد...' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="map-wrapper" [class.expanded]="showMap">
+                             <div #mapContainer class="map-container"></div>
+                             <div class="map-overlay" *ngIf="showMap">
+                                <p-button label="إعادة تعيين" icon="pi pi-refresh" [text]="true" size="small" severity="secondary" (onClick)="resetMap()" />
+                             </div>
+                        </div>
+
+                        <!-- Locations Table -->
+                        <div class="p-3 border-t border-sky-200 dark:border-sky-300 bg-surface-50/50" *ngIf="locationRows().length > 0">
+                            <h3 class="text-sm font-bold mb-3 flex items-center gap-2 text-surface-700">
+                                <i class="pi pi-list text-primary"></i>
+                                المواقع المحددة
+                            </h3>
+                            <p-table [value]="locationRows()" styleClass="p-datatable-sm custom-locations-table">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th style="width: 3rem"></th>
+                                        <th>النوع</th>
+                                        <th>المسار</th>
+                                        <th class="text-center">الإحداثيات</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-row>
+                                    <tr>
+                                        <td>
+                                            <p-button icon="pi pi-trash" [text]="true" severity="danger" size="small" (onClick)="removeLocationRow(row)" />
+                                        </td>
+                                        <td>
+                                            <span class="px-2 py-1 rounded-md text-[10px] font-bold uppercase" 
+                                                [class]="row.type === 'spreading' ? 'bg-primary/10 text-primary' : 'bg-orange-100 text-orange-600'">
+                                                {{ row.type === 'spreading' ? 'انتشار' : 'سكن' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-xs truncate max-w-[150px]" [pTooltip]="row.path">{{ row.path }}</td>
+                                        <td class="text-[10px] tabular-nums text-center text-surface-400">{{ row.coords }}</td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </div>
+
+                    <!-- Notes Card -->
+                    <div class="card interactive-card shadow-sm border-none animate-slideup delay-300">
+                        <div class="flex items-center gap-2 mb-6 border-b pb-4 border-sky-200 dark:border-sky-300">
+                            <i class="pi pi-file-edit text-primary text-xl"></i>
+                            <h2 class="text-xl font-semibold m-0">التفاصيل والملاحظات</h2>
+                        </div>
+                        <div class="field-container">
+                            <label class="field-label">الملاحظات</label>
+                            <textarea pTextarea class="w-full resize-none" [(ngModel)]="model().note" rows="8" placeholder="اكتب التفاصيل والملاحظات هنا..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Action Bar -->
+            <div class="bottom-action-bar flex items-center justify-center p-4">
+                <div class="action-container flex flex-wrap items-center justify-between gap-4 max-w-7xl w-full">
+                    <div class="flex items-center gap-3">
+                        <p-button label="حفظ ذراع الجمع" icon="pi pi-check-circle" severity="success" class="action-btn-primary" (onClick)="onSave()" />
+                        <p-button label="حفظ كمسودة" icon="pi pi-save" [text]="true" severity="secondary" (onClick)="onSaveDraft()" class="hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors" />
+                        
+                        <span class="h-8 w-px bg-sky-200 dark:bg-sky-300 mx-2 hidden md:block"></span>
+                        
+                        <div class="flex items-center gap-1">
+                            <p-fileupload
+                                mode="basic"
+                                chooseLabel="رفع مرفق"
+                                chooseIcon="pi pi-upload"
+                                [multiple]="true"
+                                [auto]="true"
+                                (onSelect)="onFilesSelected($event)"
+                                styleClass="p-button-text p-button-secondary"
+                            ></p-fileupload>
+                        </div>
+
+                        <span class="h-8 w-px bg-sky-200 dark:bg-sky-300 mx-2 hidden md:block"></span>
+                        
+                        <p-button label="جدول اذرع الجمع" icon="pi pi-table" [outlined]="true" severity="danger" routerLink="/apps/additionArms/list" />
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <div class="hidden sm:flex flex-col items-end">
+                            <span class="text-xs text-surface-500 uppercase tracking-wider font-bold">اكتمال النموذج</span>
+                            <div class="flex items-center gap-3">
+                                <div class="h-2.5 w-40 bg-sky-200 dark:bg-sky-300 rounded-full overflow-hidden progress-glow">
+                                    <div class="h-full bg-primary transition-all duration-1000 ease-in-out relative" [style.width]="calcProgress() + '%'">
+                                        <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+                                    </div>
+                                </div>
+                                <span class="text-base font-bold text-primary tabular-nums">{{ calcProgress() }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dialog: Add Type Arms -->
+            <p-dialog [(visible)]="typeArmsDialog" [modal]="true" [draggable]="false" [resizable]="false" header="اضافة نوع الذراع" [style]="{ width: '34rem' }">
+                <div class="flex flex-col gap-4" dir="rtl">
+                    <div class="field-container">
+                        <label class="field-label mandatory">اسم النوع</label>
+                        <input pInputText class="w-full" [(ngModel)]="typeArmsDraftName" maxlength="255" placeholder="اسم النوع" />
+                        <small class="text-red-500" *ngIf="typeArmsSubmitted && !typeArmsDraftName.trim()">يرجى ملئ حقل اسم النوع</small>
+                    </div>
+                    <div class="flex justify-end gap-2 mt-4">
+                        <p-button label="الغاء" severity="secondary" [outlined]="true" (onClick)="closeTypeArmsDialog()" />
+                        <p-button label="حفظ" icon="pi pi-check" (onClick)="saveTypeArms()" />
+                    </div>
+                </div>
+            </p-dialog>
+        </div>
