@@ -12,6 +12,11 @@ export default [
         data: { breadcrumb: 'إضافة حدث' }
     },
     {
+        path: 'create/choose',
+        loadComponent: () => import('./create/chooser/type-chooser').then((c) => c.TypeChooser),
+        data: { breadcrumb: 'اختيار نوع الحدث' }
+    },
+    {
         path: 'list',
         loadComponent: () => import('./list/list').then((c) => c.EventsList),
         data: { breadcrumb: 'جدول الأحداث' }

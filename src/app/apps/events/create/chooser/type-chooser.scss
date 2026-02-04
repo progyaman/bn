@@ -1,0 +1,359 @@
+
+.chooser-page-root {
+    background: transparent;
+}
+
+:host-context(.app-dark) .chooser-page-root {
+    background: transparent;
+}
+
+.chooser-panel {
+    background: linear-gradient(180deg, rgba(247, 249, 252, 0.45) 0%, rgba(238, 242, 247, 0.4) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.03);
+    border-radius: 48px;
+    padding: 3.5rem 3rem;
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+:host-context(.app-dark) .chooser-panel {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.35) 0%, rgba(10, 15, 30, 0.3) 100%);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.4);
+}
+
+/* Header Refinement */
+.chooser-header {
+    h1 {
+        font-weight: 800;
+        letter-spacing: -0.7px;
+        font-size: 3.25rem;
+    }
+    p {
+        opacity: 0.65;
+        line-height: 1.65;
+        font-weight: 400;
+    }
+}
+
+/* (A) Shell Layout - Enforcing the 3-column structure */
+.chooser-shell {
+    display: grid;
+    /* In RTL: Column 1 is Right, Column 3 is Left.
+       The user wants Detail on Left, so Detail = Col 3, Cards = Col 1.
+       We set the widths accordingly: 1fr | 1px | 340px */
+    grid-template-columns: 1fr 1px 340px;
+    gap: 32px;
+    align-items: flex-start;
+    margin-top: 2rem;
+    min-height: 600px;
+
+    @media (max-width: 1200px) {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+}
+
+.chooser-cards {
+    grid-column: 1;
+    @media (max-width: 1200px) { grid-column: 1; order: 2; }
+}
+
+.chooser-divider {
+    grid-column: 2;
+    width: 1px;
+    height: 100%;
+    min-height: 500px;
+    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.06), transparent);
+    :host-context(.app-dark) & {
+        background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.06), transparent);
+    }
+    @media (max-width: 1200px) { display: none; }
+}
+
+.chooser-detail {
+    grid-column: 3;
+    position: sticky;
+    top: 100px;
+    @media (max-width: 1200px) { grid-column: 1; order: 1; position: relative; top: 0; }
+}
+
+/* (C) Premium Cards Grid - Inside chooser-cards only */
+.cards-area-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    
+    @media (max-width: 900px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Premium Card Base Style - Zero Resize Policy */
+.premium-card {
+    background: var(--surface-card);
+    border: 1px solid var(--surface-border);
+    border-radius: 20px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 170px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    overflow: hidden;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
+        border-color: var(--primary-color);
+    }
+
+    &.is-selected {
+        outline: 3px solid var(--primary-color);
+        outline-offset: -1px;
+        background: var(--primary-50);
+        :host-context(.app-dark) & { background: rgba(var(--primary-rgb), 0.05); }
+        border-color: transparent;
+    }
+}
+
+/* Featured Card Modifier (نشاط أمني) */
+.card-featured {
+    grid-column: span 2;
+    background: linear-gradient(135deg, #FFD600 0%, #FFB800 100%);
+    border: none;
+    min-height: 200px;
+
+    .card-title { color: #000; }
+    .card-desc { color: rgba(0, 0, 0, 0.7); }
+    .icon-box { background: rgba(255, 255, 255, 0.9); i { color: #FFB800; } }
+
+    &:hover {
+        box-shadow: 0 20px 40px -15px rgba(255, 184, 0, 0.4);
+    }
+
+    &.is-selected {
+        outline: 4px solid #1f5eff;
+        background: linear-gradient(135deg, #FFD600 0%, #FFB800 100%);
+    }
+
+    @media (max-width: 600px) {
+        grid-column: span 1;
+    }
+}
+
+/* Card internal components */
+.icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-50);
+    margin-bottom: 1rem;
+    i { font-size: 1.25rem; color: var(--primary-color); }
+}
+
+.card-title {
+    font-size: 1.125rem;
+    font-weight: 800;
+    margin-bottom: 0.35rem;
+    letter-spacing: -0.5px;
+}
+
+.card-desc {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    opacity: 0.8;
+}
+
+.card-footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 1rem;
+}
+
+.arrow-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--surface-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    i { font-size: 0.875rem; }
+}
+
+.premium-card:hover .arrow-btn {
+    background: var(--primary-color);
+    color: white;
+    transform: rotate(45deg);
+}
+
+.premium-details-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 32px;
+    padding: 2rem;
+    height: auto;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+
+    :host-context(.app-dark) & {
+        background: rgba(15, 23, 42, 0.5);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+}
+
+/* Motion & Animations */
+.animate-details-fade {
+    animation: detailsFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes detailsFadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateX(-10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateX(0); 
+    }
+}
+
+.animate-page {
+    animation: pageFadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes pageFadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-details-fade {
+    animation: detailsProfessionalFade 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes detailsProfessionalFade {
+    from { 
+        opacity: 0; 
+        transform: translateY(6px); 
+        filter: blur(4px);
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+/* Entrance Animations */
+.animate-page {
+    animation: premiumEnter 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.chooser-grid > * {
+    opacity: 0;
+    animation: premiumEnter 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+// Staggered delivery (35-45ms)
+.chooser-grid > *:nth-child(1) { animation-delay: 0ms; }
+.chooser-grid > *:nth-child(2) { animation-delay: 40ms; }
+.chooser-grid > *:nth-child(3) { animation-delay: 80ms; }
+.chooser-grid > *:nth-child(4) { animation-delay: 120ms; }
+
+@keyframes premiumEnter {
+    from { 
+        opacity: 0; 
+        transform: translateY(8px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* Card Interactions */
+.group\/card {
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    position: relative;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.group\/card:hover:not(.is-selected) {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.08);
+}
+
+.group\/card:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--primary-color), 0 12px 24px -8px rgba(0, 0, 0, 0.08);
+}
+
+/* Featured Card (Yellow) */
+.card-hero {
+    background: linear-gradient(135deg, #f7b500 0%, #ffc72c 100%);
+    box-shadow: 0 8px 30px -10px rgba(247, 181, 0, 0.35);
+    
+    // Radial Highlight
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.25) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .hero-arrow-btn {
+        box-shadow: 0 4px 12px rgba(31, 94, 255, 0.3);
+    }
+}
+
+.card-hero:hover {
+    box-shadow: 0 20px 40px -15px rgba(247, 181, 0, 0.5);
+}
+
+/* Typography Polish */
+.group\/card {
+    h3, h4, h5, span {
+        font-weight: 700;
+        letter-spacing: -0.3px;
+    }
+    p {
+        opacity: 0.7;
+        line-height: 1.5;
+    }
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+    .animate-page, .chooser-grid > *, .group\/card, .group\/card:hover {
+        animation: none !important;
+        transform: none !important;
+        transition: opacity 0.2s ease !important;
+    }
+}

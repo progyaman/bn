@@ -157,6 +157,6 @@ export class Login {
             return;
         }
 
-        this.router.navigateByUrl('/');
+        this.router.navigateByUrl('/welcome');
     }
 }

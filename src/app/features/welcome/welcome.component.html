@@ -1,0 +1,28 @@
+<div class="welcome-container">
+  <div class="hero-section">
+    <div class="hero-overlay"></div>
+    
+    <div class="badge-container">
+      <div class="badge-title">وَقُلِ اعْمَلُوا فَسَيَرَى اللَّهُ عَمَلَكُمْ وَرَسُولُهُ وَالْمُؤْمِنُونَ وَسَتُرَدُّونَ إِلَى عَالِمِ الْغَيْبِ وَالشَّهَادَةِ فَيُنَبِّئُكُمْ بِمَا كُنْتُمْ تَعْمَلُونَ</div>
+    </div>
+
+    <div class="slider-wrapper" dir="rtl">
+      <swiper-container
+        #swiperRef
+        init="false"
+        class="mySwiper"
+      >
+        <swiper-slide *ngFor="let slide of slides">
+          <div class="card">
+            <img [src]="slide.image" [alt]="slide.title">
+            <div class="card-overlay">
+               <span class="card-title">{{slide.title}}</span>
+            </div>
+          </div>
+        </swiper-slide>
+      </swiper-container>
+      
+      <!-- Custom scrollbar container if needed, but swiper-scrollbar is used -->
+    </div>
+  </div>
+</div>

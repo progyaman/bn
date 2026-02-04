@@ -1,0 +1,118 @@
+<div class="min-h-screen chooser-page-root p-8 pt-24" dir="rtl">
+    <div class="max-w-10xl mx-auto chooser-panel animate-page">
+        <!-- Header -->
+        <div class="mb-16 text-center chooser-header">
+            <h1 class="text-5xl font-black text-surface-900 dark:text-surface-0 mb-6 tracking-tight">اختيار نوع الحدث</h1>
+            <p class="text-xl text-surface-500 max-w-2xl mx-auto opacity-70 leading-relaxed">يرجى تحديد تصنيف الحدث الذي ترغب في إنشائه للمتابعة من خلال الخيارات المخصصة أدناه</p>
+        </div>
+
+        <div class="chooser-shell">
+            <!-- 1. Column: Cards Area (Visual Right in RTL) -->
+            <div class="chooser-cards">
+                <div class="cards-area-grid">
+                    <!-- Featured Card: نشاط أمني -->
+                    <div class="premium-card card-featured"
+                         [class.is-selected]="pinnedType === eventTypes[0].label"
+                         (mouseenter)="onMouseEnter(eventTypes[0].label)" 
+                         (mouseleave)="onMouseLeave()"
+                         (click)="onCardClick($event, eventTypes[0].label)" tabindex="0">
+                        <div class="icon-box">
+                            <i class="pi pi-shield"></i>
+                        </div>
+                        <div>
+                            <h3 class="card-title">{{ eventTypes[0].label }}</h3>
+                            <p class="card-desc">{{ eventTypes[0].description }}</p>
+                        </div>
+                        <div class="card-footer">
+                            <div class="arrow-btn">
+                                <i class="pi pi-arrow-up-left"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Other 6 Cards -->
+                    <ng-container *ngFor="let type of eventTypes.slice(1); let i = index">
+                        <div class="premium-card"
+                             [class.is-selected]="pinnedType === type.label"
+                             (mouseenter)="onMouseEnter(type.label)" 
+                             (mouseleave)="onMouseLeave()"
+                             (click)="onCardClick($event, type.label)" tabindex="0">
+                            <div class="icon-box">
+                                <i [class]="type.icon || 'pi pi-file'"></i>
+                            </div>
+                            <div>
+                                <h3 class="card-title">{{ type.label }}</h3>
+                                <p class="card-desc line-clamp-2">{{ type.description }}</p>
+                            </div>
+                            <div class="card-footer">
+                                <div class="arrow-btn">
+                                    <i class="pi pi-arrow-up-left"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+
+            <!-- 2. Column: Divider -->
+            <div class="chooser-divider"></div>
+
+            <!-- 3. Column: Detail Panel (Visual Left in RTL) -->
+            <div class="chooser-detail">
+                <div *ngIf="activeDetails" class="premium-details-card animate-details-fade">
+                    <div class="panel-header mb-6">
+                        <div class="flex items-center justify-between mb-2">
+                             <span class="text-[10px] font-bold text-primary uppercase tracking-[2px] opacity-60">تفاصيل النوع</span>
+                             <div class="w-10 h-10 rounded-full flex items-center justify-center shadow-lg" [style.backgroundColor]="activeDetails.color + '20'">
+                                 <i [class]="activeDetails.icon" [style.color]="activeDetails.color" class="text-xl"></i>
+                             </div>
+                        </div>
+                        <h2 class="text-3xl font-black text-slate-900 dark:text-white leading-tight">{{ activeDetails.title }}</h2>
+                    </div>
+                    
+                    <div class="panel-body flex flex-col gap-6">
+                        <p class="text-slate-500 dark:text-slate-400 leading-relaxed text-[15px]">
+                            {{ activeDetails.description }}
+                        </p>
+
+                        <div class="flex flex-col gap-3">
+                            <div *ngFor="let point of activeDetails.points" class="flex items-center gap-4 p-3 rounded-xl bg-white/40 dark:bg-surface-800/20 border border-surface-100/50 dark:border-surface-700/30 group/point transition-all hover:bg-white/60">
+                                <div class="w-8 h-8 rounded-lg bg-white dark:bg-surface-800 flex items-center justify-center shrink-0 shadow-sm">
+                                    <i [class]="point.icon" class="text-primary text-xs"></i>
+                                </div>
+                                <span class="text-slate-600 dark:text-slate-300 text-sm font-medium">{{ point.text }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-footer mt-auto pt-8">
+                        <div class="flex flex-col gap-3 p-4 rounded-2xl bg-primary/5 border border-primary/10">
+                            <div class="flex items-center gap-3 text-primary">
+                                <i class="pi pi-info-circle"></i>
+                                <span class="text-xs font-bold uppercase tracking-wider">تلميح الاستخدام</span>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                                    <div class="w-1 h-1 rounded-full bg-slate-300"></div>
+                                    <span class="text-[11px]">نقرة واحدة لتثبيت العرض</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                                    <div class="w-1 h-1 rounded-full bg-slate-300"></div>
+                                    <span class="text-[11px]">نقرتان للانتقال للنموذج</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Placeholder when no details -->
+                <div *ngIf="!activeDetails" class="h-full flex flex-col items-center justify-center text-center p-8 opacity-40 animate-details-fade">
+                    <div class="w-24 h-24 rounded-full border-2 border-dashed border-slate-300 dark:border-surface-700 flex items-center justify-center mb-8 bg-slate-50/50">
+                        <i class="pi pi-mouse-pointer text-4xl text-slate-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-500 mb-3">استكشف الأنواع</h3>
+                    <p class="text-[13px] text-slate-400 max-w-[200px] leading-relaxed">قم بتمرير الماوس فوق أي كارت لعرض تفاصيله، أو انقر مرة واحدة لتثبيت العرض هنا.</p>
+                </div>
+            </div>
+        </div>
+</div>

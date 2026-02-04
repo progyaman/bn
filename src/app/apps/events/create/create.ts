@@ -110,13 +110,13 @@ export class CreateEvent implements OnInit, AfterViewInit {
     locationRows: LocationRow[] = [];
 
     eventTypes = [
-        { label: 'نشاط أمني', description: 'توثيق الأنشطة والعمليات الأمنية الميدانية والمهمات الخاصة', icon: 'pi pi-shield', color: '#ffc107' },
-        { label: 'تقرير موضوعي', description: 'تقييم شامل لموضوع محدد مع التحليل والتوصيات', icon: 'pi pi-file-edit', color: '#03a9f4' },
-        { label: 'تقرير جزئي', description: 'تحديثات سريعة وتقارير مختصرة عن حالة معينة', icon: 'pi pi-list', color: '#4caf50' },
-        { label: 'برقية إخبارية', description: 'إبلاغ سريع عن حدث طارئ أو معلومة فورية', icon: 'pi pi-send', color: '#f44336' },
-        { label: 'محضر تحقيق', description: 'توثيق رسمي للافتادات ووقائع التحقيق والمحاضر', icon: 'pi pi-user-edit', color: '#9c27b0' },
-        { label: 'نشاط تدريبي', description: 'سجلات الدورات، الممارسة الميدانية، والتدريب المشترك', icon: 'pi pi-book', color: '#795548' },
-        { label: 'إضافة هدف', description: 'تعريف أهداف جديدة في النظام وتحديد المعالم', icon: 'pi pi-map-marker', color: '#607d8b' }
+        { label: 'إجراءات', description: 'توثيق الإجراءات التنظيمية والميدانية وخطوات العمل', icon: 'pi pi-list', color: '#3B82F6', type: 'procedures' },
+        { label: 'المصالحات/المهادنات', description: 'متابعة اتفاقات السلام وتصفية النزاعات المحلية', icon: 'pi pi-handshake', color: '#10B981', type: 'reconciliation' },
+        { label: 'النشاط الطلابي', description: 'رصد الفعاليات الطلابية والحراك الجامعي والأكاديمي', icon: 'pi pi-users', color: '#8B5CF6', type: 'student' },
+        { label: 'الأعراف والتقاليد', description: 'توثيق القضايا العشائرية والاجتماعية المؤثرة على الأمن', icon: 'pi pi-bookmark', color: '#F59E0B', type: 'norms' },
+        { label: 'الاعتصامات والإضرابات', description: 'متابعة الاحتجاجات العمالية والاعتصامات والمطالبة بالحقوق', icon: 'pi pi-megaphone', color: '#EF4444', type: 'strikes' },
+        { label: 'المجالس والروابط', description: 'بيانات الروابط المهنية والمجالس المحلية والنقابات', icon: 'pi pi-building', color: '#14B8A6', type: 'councils' },
+        { label: 'تحركات واتفاقات أمنية', description: 'رصد التحركات العسكرية والاتفاقات الأمنية الكبرى', icon: 'pi pi-shield', color: '#06B6D4', type: 'security' }
     ];
 
     model: CreateEventModel = {
@@ -158,9 +158,9 @@ export class CreateEvent implements OnInit, AfterViewInit {
 
     ngOnInit() {
         this.route.queryParams.subscribe(params => {
-            const typeLabel = params['type'];
-            if (typeLabel) {
-                const typeObj = this.eventTypes.find(t => t.label === typeLabel);
+            const typeKey = params['type'];
+            if (typeKey) {
+                const typeObj = this.eventTypes.find((t: any) => t.type === typeKey || t.label === typeKey);
                 if (typeObj) {
                     this.selectedEventType = typeObj.label;
                     this.selectedIcon = typeObj.icon;

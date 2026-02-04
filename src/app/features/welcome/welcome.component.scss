@@ -1,0 +1,142 @@
+.welcome-container {
+  width: 100%;
+  min-height: calc(100vh - 10rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url('/images/app/bnn.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 20px;
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+}
+
+.hero-section {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  background-color: transparent; // Make hero transparent to show container background
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.5) 100%);
+    z-index: 1;
+  }
+}
+
+.badge-container {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  
+  .badge-title {
+    background: white;
+    color: #333;
+    padding: 15px 40px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    max-width: 90%;
+    text-align: center;
+    line-height: 1.6;
+  }
+}
+
+.slider-wrapper {
+  position: relative;
+  width: 100%;
+  z-index: 5;
+  margin-top: 100px;
+
+  swiper-container {
+    width: 100%;
+    padding-top: 50px;
+    padding-bottom: 100px;
+  }
+
+  swiper-slide {
+    background-position: center;
+    background-size: cover;
+    width: 240px;
+    height: 340px;
+    filter: blur(4px);
+    opacity: 0.6;
+    transition: all 0.5s ease;
+    transform: scale(0.85);
+
+    &.swiper-slide-active {
+      filter: blur(0);
+      opacity: 1;
+      transform: scale(1.1);
+      z-index: 10;
+    }
+    
+    &.swiper-slide-next, &.swiper-slide-prev {
+        filter: blur(2px);
+        opacity: 0.8;
+        transform: scale(0.95);
+    }
+  }
+
+  .card {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px;
+      background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+      color: white;
+      text-align: center;
+      
+      .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      }
+    }
+  }
+}
+
+/* Scrollbar styling */
+swiper-container::part(scrollbar) {
+  background: rgba(255, 255, 255, 0.2);
+  height: 6px;
+  width: 250px;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 40px;
+  border-radius: 10px;
+}
+
+swiper-container::part(scrollbar-drag) {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(255,255,255,0.5);
+}

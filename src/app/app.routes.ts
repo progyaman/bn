@@ -16,6 +16,16 @@ export const routes: Routes = [
 		children: [
 			{
 				path: '',
+				redirectTo: 'welcome',
+				pathMatch: 'full'
+			},
+			{
+				path: 'welcome',
+				loadComponent: () => import('@/features/welcome/welcome.component').then((c) => c.WelcomeComponent),
+				data: { breadcrumb: 'الترحيب' }
+			},
+			{
+				path: 'dashboard',
 				loadComponent: () => import('@/pages/dashboards/milry/generaldashboard').then((c) => c.GeneralDashboard),
 				data: { breadcrumb: 'الإحصائيات العامة' }
 			},
@@ -48,11 +58,6 @@ export const routes: Routes = [
 				path: 'report',
 				data: { breadcrumb: 'التقارير' },
 				loadChildren: () => import('@/pages/report/report.routes')
-			},
-			{
-				path: 'map',
-				data: { breadcrumb: 'الخارطة' },
-				loadChildren: () => import('@/pages/maps/maps.routes')
 			},
 			{
 				path: 'discover',
